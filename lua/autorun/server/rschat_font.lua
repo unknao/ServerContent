@@ -1,0 +1,1 @@
+resource.AddSingleFile("resource/fonts/RS-Bold-12.ttf")
