@@ -23,7 +23,7 @@ SWEP.Secondary.Automatic=true
 SWEP.Secondary.Ammo="none"
 
 SWEP.DrawAmmo=true
-SWEP.AdminOnly=false
+SWEP.AdminOnly=true
 
 local snd=Sound("HEGrenade.Bounce")
 function SWEP:Initialize()
