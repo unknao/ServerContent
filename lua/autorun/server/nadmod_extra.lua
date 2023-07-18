@@ -1,4 +1,4 @@
-hook.Add("OnEntityCreated", "pp", function(ent)
+hook.Add("OnEntityCreated", "NadMod.PP.Oversight", function(ent)
 	timer.Simple(0, function() 
 		if not IsValid(ent) then return end
 		if not IsValid(ent:GetOwner()) then return end

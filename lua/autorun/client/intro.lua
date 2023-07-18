@@ -51,22 +51,42 @@ hook.Add("Tick", tag, function()
 
 end)
 
+hook.Add("OnEntityCreated", tag, function()
+	
+	hook.Remove("OnEntityCreated", tag)
+	loadingTable.time[3] = math.Round(SysTime() - loadingTable.time[3], 2)
+	
+	loadingTable.text[4] = "Player: "
+	loadingTable.time[4] = SysTime()
+
+end)
+
 hook.Add("InitPostEntity", tag, function()
 	
 	hook.Remove("InitPostEntity", tag)
-	loadingTable.time[3] = math.Round(SysTime() - loadingTable.time[3], 2)
+	loadingTable.time[4] = math.Round(SysTime() - loadingTable.time[4], 2)
 	
-	loadingTable.text[4] = "Think: "
-	loadingTable.time[4] = SysTime()
+	loadingTable.text[5] = "Render: "
+	loadingTable.time[5] = SysTime()
+	
+end)
+
+hook.Add("RenderScene", tag, function()
+	
+	hook.Remove("RenderScene", tag)
+	loadingTable.time[5] = math.Round(SysTime() - loadingTable.time[5], 2)
+	
+	loadingTable.text[6] = "Think: "
+	loadingTable.time[6] = SysTime()
 	
 end)
 
 hook.Add("Think", tag, function()
 	
 	hook.Remove("Think", tag)
-	loadingTable.time[4] = math.Round(SysTime() - loadingTable.time[4], 2)
+	loadingTable.time[6] = math.Round(SysTime() - loadingTable.time[6], 2)
 	
-	loadingTable.text[5] = "Fully Initialized!"
+	loadingTable.text[7] = "Fully Initialized!"
 	
 end)
 
@@ -87,8 +107,9 @@ local Start
 local pc = Material("materials/icon16/computer.png")
 local glow = Material("sprites/physg_glow1")
 local fire = Material("icon16/fire.png")
-local dots = Material("icon16/world.png")
+local dots = Material("icon16/bomb.png")
 local people = Material("icon16/user.png")
+local clock = Material("icon16/clock.png")
 
 hook.Add("HUDShouldDraw", tag, function()
 	
@@ -154,7 +175,7 @@ hook.Add("DrawOverlay", tag, function()
 
 	surface.SetMaterial(pc)
 	surface.SetDrawColor(255, 124, 77, 255 * Alpha)
-	surface.DrawTexturedRectRotated(ScrW() / 2 + math.random(-2, 2), ScrH()/ 2 + math.random(-2, 2), 128, 128, math.sin(RealTime() * 2) * 10)
+	surface.DrawTexturedRectRotated(ScrW() / 2 + math.random(-2, 2), ScrH()/ 2 + math.random(-2, 2), 128, 128, math.random(-1, 1))
 		
 	--Fire
 	if firetick < RealTime() then --Timers don't cut it for this use case.
@@ -203,7 +224,7 @@ hook.Add("DrawOverlay", tag, function()
 		draw.Text({
 				text = v,
 				font = tag,
-				xalign = ((i == 5) and 1 or 2),
+				xalign = 2,
 				yalign = 3,
 				color = Color(230, 230 ,230, 255 * Alpha),
 				pos = {ScrW() / 2 - 400, ScrH() / 2 - 200 + 35 * i}
@@ -226,6 +247,11 @@ hook.Add("DrawOverlay", tag, function()
 		
 	end
 	
+	if #loadingTable.text == 7 then
+		surface.SetMaterial(clock)
+		surface.DrawTexturedRectRotated(ScrW() / 2 - 380 + math.random(-2, 2), ScrH() / 2  + 58 + math.random(-2, 2), 26, 26, math.random(-8, 8))
+	end
+	
 	--This is fine
 	draw.Text({
 			text = "This is fine.",
@@ -237,5 +263,3 @@ hook.Add("DrawOverlay", tag, function()
 	})
 
 end)
-
-

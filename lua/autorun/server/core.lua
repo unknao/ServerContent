@@ -1,5 +1,3 @@
---its all gosh dern luaer
-util.AddNetworkString("3dplay")
 
 hook.Add("PlayerCanHearPlayersVoice","bquiet", function(ply1,ply2)
 	return ply1:GetPos():Distance(ply2:GetPos())<200

@@ -1,3 +1,4 @@
+if not SERVER then return end
 local tag = "FinishedLoading"
 
 hook.Add("InitPostEntity",tag,function()
@@ -14,6 +15,10 @@ hook.Add("InitPostEntity",tag,function()
 			hook.Run(tag,ply)
 		end
 		
+	end)
+	
+	hook.Add(tag, "PostFinishedLoading",  function(ply)
+		timer.Simple(0, function() hook.Run("PostFinishedLoading",  ply) end)
 	end)
 	
 	hook.Remove("InitPostEntity",tag)
