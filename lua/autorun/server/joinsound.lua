@@ -1,7 +1,7 @@
 --Replace the initial drown sound.
 require("finishedloading")
 
-hook.Add("EntityEmitSound", tag, function(data)
+hook.Add("EntityEmitSound", "joinsound", function(data)
 	
 	local ent = data.Entity
 	
