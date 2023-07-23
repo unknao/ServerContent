@@ -13,14 +13,14 @@ local drm={
 	extrainfo={
 		function(i) 
 			draw.Text({
-				text="Edicts: "..Entity(0):GetNWInt("edicts","N/A"),
+				text="Edicts: "..Entity(0):GetNWInt("edicts", "N/A"),
 				font="fornames",
 				pos={ScrW()-100,ScrH()-200+(i-1)*20},
 				xalign=TEXT_ALIGN_LEFT,
 				yalign=TEXT_ALIGN_CENTER,
-				color=HSVToColor(20,Entity(0):GetNWInt("edicts","N/A")*0.00012207031,1)
+				color=HSVToColor(20,Entity(0):GetNWInt("edicts")*0.00012207031,1)
 			})
-		end,
+		end,		
 		function(i) 
 			draw.Text({
 				text="TPS: "..math.Round(1/engine.ServerFrameTime()),

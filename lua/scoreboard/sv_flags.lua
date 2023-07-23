@@ -13,5 +13,4 @@ hook.Add("Tick","datastreamed",function()
 	for k,v in pairs(player.GetAll()) do
 		v:SetNWBool("timeout",v:IsTimingOut())
 	end
-	Entity(0):SetNWInt("edicts",ents.GetEdictCount())
 end)
