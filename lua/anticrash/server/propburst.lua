@@ -1,4 +1,4 @@
-local tag = "prop_burst"
+local tag = "anticrash_prop_burst"
 local anticrash_prop_burst_limit = 3
 
 local function prop_burst(ply)
@@ -6,11 +6,11 @@ local function prop_burst(ply)
 	ply.ac_spawn_time = CurTime()
 	
 	if ply.ac_last_spawn_time == ply.ac_spawn_time then
-		ply.ac_propburst = ply.ac_propburst + 1
+		ply.ac_prop_burst = ply.ac_prop_burst + 1
 		else
-		ply.ac_propburst = 0
+		ply.ac_prop_burst = 0
 	end
-	if ply.ac_propburst >= anticrash_prop_burst_limit then return false end
+	if ply.ac_prop_burst >= anticrash_prop_burst_limit then return false end
 end
 
 hook.Add("PlayerSpawnProp", tag, prop_burst)
