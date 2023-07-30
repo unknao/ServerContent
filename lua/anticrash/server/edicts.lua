@@ -31,10 +31,6 @@ hook.Add("EntityRemoved", tag, function()
 	end)
 end)
 	
-local SpawnHooks = {"Effect", "NPC", "Object", "Prop", "Ragdoll", "SENT", "SWEP", "Vehicle"}
-
-for _, v in ipairs(SpawnHooks) do
-	hook.Add("PlayerSpawn"..v, tag, function()
-		return AllowCreation
-	end)
-end
+hook.Add("PlayerSpawnObject", tag, function() 
+	if not AllowCreation then return false end 
+end)

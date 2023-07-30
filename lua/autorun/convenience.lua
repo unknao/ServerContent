@@ -9,7 +9,7 @@ Entity.GPO = Entity.GetPhysicsObject
 Player.cmd, Player.Cmd, Player.CMD = Player.ConCommand, Player.ConCommand, Player.ConCommand
 RCC = RunConsoleCommand
 
---functions
+--Physics object function ease of access
 function Entity:Sleep()
 	local phys = self:GPO()
 	if ( !IsValid( phys ) ) then return end
@@ -28,6 +28,7 @@ function Entity:GetMass()
 	return phys:GetMass()
 end
 
+--Effect debugging utility
 function Effect:GetTable()
 	local tbl = {
 		["Entity"] = self:GetEntity(),
@@ -48,4 +49,4 @@ function Effect:GetTable()
 	}
 	return tbl
 end
-	
+
