@@ -1,16 +1,15 @@
 local tag = "anticrash_prop_burst"
-local anticrash_prop_burst_limit = 3
+local limit = CreateConVar("anticrash_prop_burst_limit", 3, {FCVAR_ARCHIVE}, "Sets the limit of how many props a player can spawn in a tick.")
 
 local function prop_burst(ply)
-	ply.ac_last_spawn_time = ply.ac_spawn_time
-	ply.ac_spawn_time = CurTime()
-	
-	if ply.ac_last_spawn_time == ply.ac_spawn_time then
-		ply.ac_prop_burst = ply.ac_prop_burst + 1
-		else
-		ply.ac_prop_burst = 0
+	if ply.propburst_time ~= CurTime() then
+		ply.props_spawned_this_tick = 0
+	else
+		ply.props_spawned_this_tick = ply.props_spawned_this_tick + 1
 	end
-	if ply.ac_prop_burst >= anticrash_prop_burst_limit then return false end
+	ply.propburst_time = CurTime()
+	
+	if ply.props_spawned_this_tick >= limit:GetInt() then return false end
 end
 
 hook.Add("PlayerSpawnProp", tag, prop_burst)

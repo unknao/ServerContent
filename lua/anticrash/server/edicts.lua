@@ -4,15 +4,12 @@ local AllowCreation = true
 local EdictsCount = ents.GetEdictCount()
 
 hook.Add("InitPostEntity", tag, function()
-	
 	EdictsCount = ents.GetEdictCount()
 	Entity(0):SetNWInt(tag, EdictsCount)
 	hook.Remove("InitPostEntity", tag)
-	
 end)
 
 hook.Add("OnEntityCreated", tag, function()
-	
 	EdictsCount = ents.GetEdictCount()
 	Entity(0):SetNWInt(tag, ents.GetEdictCount())
 	
@@ -21,7 +18,6 @@ hook.Add("OnEntityCreated", tag, function()
 	
 	AllowCreation = false
 	ctrl.countdown(30, "Edicts table full, restarting map to prevent crashes...", true, RunConsoleCommand, "changelevel", game.GetMap())
-	
 end)
 
 hook.Add("EntityRemoved", tag, function()

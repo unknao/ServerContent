@@ -1,12 +1,10 @@
 local tag = "soundprecache"
-
 require("stringtable")
 
 local Countdown = false
 Entity(0):SetNWInt(tag,  table.Count(StringTable(tag):GetTable()))
 
 hook.Add("EntityEmitSound", tag, function(ent)
-	
 	local soundprecache = table.Count(StringTable(tag):GetTable())
 	Entity(0):SetNWInt(tag, soundprecache)
 	
@@ -15,6 +13,4 @@ hook.Add("EntityEmitSound", tag, function(ent)
 	
 	Countdown = true
 	ctrl.countdown(30, "Sound precache full(?!), restarting map to prevent crashes...", true, RunConsoleCommand, "changelevel", game.GetMap())
-
 end)
-	

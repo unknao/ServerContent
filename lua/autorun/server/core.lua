@@ -11,10 +11,14 @@ hook.Add("CanTool","nocando",function(ply,tr,tool)
 end)
 
 hook.Add("PlayerSpawn","weapons",function(ply)
+	if not IsValid(ply) then return end
+	
 	ply:Give("none",false)
 end)
 
 hook.Add( "WeaponEquip", "Restock", function(wep,ply)
+	if not IsValid(ply) then return end
+	
 	timer.Simple(0,function() 
 		ply:GiveAmmo(10000,wep:GetPrimaryAmmoType(),true) 
 		ply:GiveAmmo(10000,wep:GetSecondaryAmmoType(),true) 
