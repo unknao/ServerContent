@@ -152,7 +152,7 @@ hook.Add("DrawOverlay", tag, function()
 		for i = 1, Width * Height do
 		
 			local Fraction = math.Clamp(Start - (0.0065359477124183 * i - 1) - PseudoTimer, 0, 1)
-			surface.SetDrawColor(Color((1 - Fraction) * 255, (1 - Fraction) * 255, (1 - Fraction) * 255, 255 * Fraction))
+			surface.SetDrawColor((1 - Fraction) * 255, (1 - Fraction) * 255, (1 - Fraction) * 255, 255 * Fraction)
 			render.SetColorMaterial()
 			surface.DrawRect(squares.w[i] - 1, squares.h[i] - 1, 121, 121)
 			
