@@ -118,31 +118,25 @@ local people = Material("icon16/user.png")
 local clock = Material("icon16/clock.png")
 
 hook.Add("HUDShouldDraw", tag, function()
-	
 	hook.Remove("HUDShouldDraw", tag)
-	
 	timer.Create(tag, 3, 1, function()
 		Start = 2
 	end)
-	
 end)
-
-local Alpha = 1
 
 --Fire
 local firecoord = {x = {}, y = {}, rot = {}}
 local firetick = 0
 
 for i = 1, 20 do
-	
 	firecoord.x[i], firecoord.y[i], firecoord.rot[i] = math.random(-65, 65), math.random(-20, 20), math.random(-10, 10)
-	
 end
 
+local Alpha = 1
 local PseudoTimer = 0
 local livetime
 
-local text_color1, text_color2 = Color(230, 230 ,230, 255 * Alpha), Color(235, 195, 77, 255 * Alpha), 
+local text_color1, text_color2 = Color(230, 230 ,230, 255), Color(235, 195, 77, 255)
 --Transition into lua loading screen
 hook.Add("DrawOverlay", tag, function()
 
@@ -228,13 +222,13 @@ hook.Add("DrawOverlay", tag, function()
 	
 	--Loading text
 	for i, v in ipairs(loadingTable.text) do
-		text_color.a = 255 * Alpha
+		text_color1.a = 255 * Alpha
 		draw.Text({
 				text = v,
 				font = tag,
 				xalign = 2,
 				yalign = 3,
-				color = text_color,
+				color = text_color1,
 				pos = {ScrW() / 2 - 400, ScrH() / 2 - 200 + 35 * i}
 		})
 		
@@ -249,10 +243,9 @@ hook.Add("DrawOverlay", tag, function()
 				font = tag,
 				xalign = 0,
 				yalign = 3,
-				color = text_color,
+				color = text_color1,
 				pos = {ScrW() / 2 - 400, ScrH() / 2 - 200 + 35 * i}
 		})
-		
 	end
 	
 	if #loadingTable.text == 7 then
