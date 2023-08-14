@@ -141,6 +141,8 @@ end
 
 local PseudoTimer = 0
 local livetime
+
+local text_color1, text_color2 = Color(230, 230 ,230, 255 * Alpha), Color(235, 195, 77, 255 * Alpha), 
 --Transition into lua loading screen
 hook.Add("DrawOverlay", tag, function()
 
@@ -226,13 +228,13 @@ hook.Add("DrawOverlay", tag, function()
 	
 	--Loading text
 	for i, v in ipairs(loadingTable.text) do
-	
+		text_color.a = 255 * Alpha
 		draw.Text({
 				text = v,
 				font = tag,
 				xalign = 2,
 				yalign = 3,
-				color = Color(230, 230 ,230, 255 * Alpha),
+				color = text_color,
 				pos = {ScrW() / 2 - 400, ScrH() / 2 - 200 + 35 * i}
 		})
 		
@@ -247,7 +249,7 @@ hook.Add("DrawOverlay", tag, function()
 				font = tag,
 				xalign = 0,
 				yalign = 3,
-				color = Color(230, 230 ,230, 255 * Alpha),
+				color = text_color,
 				pos = {ScrW() / 2 - 400, ScrH() / 2 - 200 + 35 * i}
 		})
 		
@@ -259,12 +261,13 @@ hook.Add("DrawOverlay", tag, function()
 	end
 	
 	--This is fine
+	text_color2.a = 255 * Alpha
 	draw.Text({
 			text = "This is fine.",
 			font = "introfancy",
 			xalign = 1,
 			yalign = 1,
-			color = Color(235, 195, 77, 255 * Alpha),
+			color = text_color2,
 			pos = {ScrW() / 2, ScrH() / 2 - 150}
 	})
 
