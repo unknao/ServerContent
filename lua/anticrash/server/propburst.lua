@@ -8,7 +8,7 @@ local function prop_burst(ply)
 		ply.props_spawned_this_tick = ply.props_spawned_this_tick + 1
 	end
 	ply.propburst_time = CurTime()
-	
+
 	if ply.props_spawned_this_tick >= limit:GetInt() then return false end
 end
 

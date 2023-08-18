@@ -7,7 +7,7 @@ if not SERVER then return end
 
 require("finishedloading")
 
-local Admins={
+local Admins = {
 	["STEAM_0:1:33890317"] = true, --unknao
 	["STEAM_0:0:53756062"] = true, --galaxy
 }
@@ -22,8 +22,7 @@ end)
 hook.Add("FinishedLoading", "setup_teams", function(ply)
 	if Admins[ply:SteamID()] then
 			ply:SetUserGroup("superadmin")
-	end	
+	end
 
 	ply:SetTeam(ply:IsSuperAdmin() and 2 or 1)
 end)
-	
