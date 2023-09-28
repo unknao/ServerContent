@@ -21,7 +21,8 @@ SWEP.Primary.ClipSize = 15
 SWEP.Primary.DefaultClip = 15
 SWEP.Primary.Automatic = false
 SWEP.Primary.Ammo = "357"
-SWEP.CSMuzzleFlashes=true
+SWEP.CSMuzzleFlashes = true
+SWEP.Primary.Sound = Sound("Weapon_FiveSeven.Single")
 
 SWEP.Secondary.ClipSize = -1
 SWEP.Secondary.DefaultClip = -1
@@ -31,59 +32,59 @@ SWEP.Secondary.Ammo = "none"
 SWEP.DrawAmmo = true
 SWEP.AdminOnly = false
 
+local MaxSpread = 0.02
+local MaxSway = 0.2
+local BoltTrailColor = Color(255,163,0)
+
 function SWEP:Initialize()
-	
-	self:SetHoldType( "pistol" )
-	
+	self:SetHoldType("pistol")
 end
-
-function SWEP:Reload()
-	if (!self:HasAmmo() ) then return end
-	self:DefaultReload(ACT_VM_RELOAD)
-end
-
-local cb={ShootSound=Sound("weapons/fiveseven/fiveseven-1.wav"),
-	sway=0.2
-	}
-
 
 function SWEP:PrimaryAttack()
-	if self:Clip1()<1 then self:Reload() return end
+	if self:Clip1() < 1 then self:Reload() return end
+	local Owner = self:GetOwner()
+
 	self:TakePrimaryAmmo(1)
 	self:SetNextPrimaryFire(CurTime()+0.1)
-	self:EmitSound(cb.ShootSound)
-	self.Owner:SetAnimation(PLAYER_ATTACK1)
+	self:EmitSound(self.Primary.Sound)
+	Owner:SetAnimation(PLAYER_ATTACK1)
 	self:SendWeaponAnim(ACT_VM_PRIMARYATTACK)
-	if self.Owner.ViewPunch then
-		self.Owner:ViewPunch(Angle(math.random(-cb.sway,cb.sway),math.random(-cb.sway,cb.sway),0))
-	end
-	if (CLIENT) then return end
-		cb.pos=self.Owner:GetBonePosition(12)
-		cb.shootpos=cb.pos+self:GetUp()*3+self:GetForward()*8.5
-		cb.spread=self:GetUp()*math.random(-20,20)+self:GetRight()*math.random(-20,20)
-		cb.ent = ents.Create("crossbow_bolt")
-		if (!IsValid(cb.ent)) then return end
-		util.SpriteTrail(cb.ent,0,Color(255,163,0), false,1,0,0.5,0.5, "trails/plasma" )
-		cb.ent:SetColor(Color(0,0,0,255))
-		cb.ent:SetOwner(self.Owner)
-		cb.ent:SetPos(cb.shootpos)
-		cb.ent:SetAngles((cb.shootpos-self.Owner:GetEyeTrace().HitPos):Angle())
-		cb.ent:SetVelocity(((self.Owner:GetEyeTrace().HitPos-cb.shootpos):GetNormalized()*5000)+cb.spread)
-		if not cb.ent:IsInWorld() then cb.ent:Remove() return end
-		cb.ent.isboltpistolbolt=true
-		cb.ent:Spawn()
-end
 
-hook.Add("EntityTakeDamage", "boltpistoldmg", function(ent,dmg)
-	local inf = dmg:GetInflictor()
-	if IsValid(inf) and inf.isboltpistolbolt then
-		dmg:SetDamagePosition(inf:GetPos())
-		dmg:SetReportedPosition(inf:GetPos())
-		dmg:SetDamageType(DMG_BULLET)
-		dmg:SetDamageBonus(20)
-		dmg:SetDamage(20)
+	if Owner:IsPlayer() then
+		local vp_angle = Angle(-1.5, math.random(-MaxSway, MaxSway),0)
+
+		Owner:ViewPunch(vp_angle)
+		Owner:SetEyeAngles(Owner:EyeAngles() + vp_angle * 0.15)
 	end
-end)
+
+	if self:Clip1()<1 then self:Reload() end
+	if (CLIENT) then return end
+
+	local crossbow_bolt = ents.Create("crossbow_bolt")
+	if not IsValid(crossbow_bolt) then return end
+
+	local MuzzlePos = Owner:GetAttachment(Owner:LookupAttachment("anim_attachment_RH")).Pos
+	local HitPos = self:GetOwner():GetEyeTrace().HitPos
+	debugoverlay.Line(MuzzlePos, HitPos, 3)
+	local AimAngle = (MuzzlePos - HitPos):Angle()
+
+	local rand = math.Rand(-MaxSpread, MaxSpread)
+	local rand_sin = math.Rand(-math.pi, math.pi)
+	local Spread = LocalToWorld(Vector(0, math.sin(rand_sin) * rand, math.cos(rand_sin) * rand), angle_zero, vector_origin, AimAngle)
+	local Vel = ((HitPos - MuzzlePos):GetNormalized() + Spread):GetNormalized()
+
+	util.SpriteTrail(crossbow_bolt, 0, BoltTrailColor, false, 1, 0, 0.5, 0.5, "trails/plasma")
+	crossbow_bolt:SetOwner(Owner)
+	crossbow_bolt:SetPos(MuzzlePos)
+	crossbow_bolt:SetAngles(Vel:Angle())
+	crossbow_bolt:SetVelocity(Vel * 5000)
+	crossbow_bolt:Input("SetDamage", nil, nil, 20)
+	PrintTable(crossbow_bolt:GetKeyValues())
+	if not crossbow_bolt:IsInWorld() then crossbow_bolt:Remove() return end
+
+	crossbow_bolt:Spawn()
+	crossbow_bolt:Activate()
+end
 
 function SWEP:SecondaryAttack() return end
 
