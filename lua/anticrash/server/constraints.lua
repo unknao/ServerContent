@@ -5,31 +5,42 @@ ac_detours.advballsocket = ac_detours.advballsocket or constraint.AdvBallsocket
 ac_detours.weld = ac_detours.weld or constraint.Weld
 
 -- if distance too great, bail
-local Too_Big = 7168
+local Too_Big = 7168 ^ 2
+local Too_Big_Weld = 16384 ^ 2
 
 function constraint.Motor(Ent1, Ent2, Bone1, Bone2, LPos1, LPos2, ...)
-	if LPos1:Distance(LPos2) >= Too_Big then return false end
+	if Ent1:IsWorld() or Ent2:IsWorld() then return ac_detours.motor(Ent1, Ent2, Bone1, Bone2, LPos1, LPos2, ...) end
+	if LPos1:DistToSqr(LPos2) >= Too_Big then return false end
+	
 	return ac_detours.motor(Ent1, Ent2, Bone1, Bone2, LPos1, LPos2, ...)
 end
 
 function constraint.Axis(Ent1, Ent2, Bone1, Bone2, LPos1, LPos2, ...)
-	if LPos1:Distance(LPos2) >= Too_Big then return false end
+	if Ent1:IsWorld() or Ent2:IsWorld() then return ac_detours.axis(Ent1, Ent2, Bone1, Bone2, LPos1, LPos2, ...) end
+	if LPos1:DistToSqr(LPos2) >= Too_Big then return false end
+	
 	return ac_detours.axis(Ent1, Ent2, Bone1, Bone2, LPos1, LPos2, ...)
 end
 
-function constraint.Ballsocket(Ent1, Ent2, Bone1, Bone2, LocalPos, ...)
-	if LocalPos:Length() >= Too_Big then return false end
-	return ac_detours.ballsocket(Ent1, Ent2, Bone1, Bone2, LocalPos, ...)
+function constraint.AdvBallsocket(Ent1, Ent2, Bone1, Bone2, LPos1, LPos2, ...)
+	if Ent1:IsWorld() or Ent2:IsWorld() then return ac_detours.advballsocket(Ent1, Ent2, Bone1, Bone2, LPos1, LPos2, ...) end
+	if LPos1:DistToSqr(LPos2) >= Too_Big then return false end
+	
+	return ac_detours.advballsocket(Ent1, Ent2, Bone1, Bone2, LPos1, LPos2, ...)
 end
 
-function constraint.AdvBallsocket(Ent1, Ent2, Bone1, Bone2, LPos1, LPos2, ...)
-	if LPos1:Distance(LPos2) >= Too_Big then return false end
-	return ac_detours.advballsocket(Ent1, Ent2, Bone1, Bone2, LPos1, LPos2, ...)
+function constraint.Ballsocket(Ent1, Ent2, Bone1, Bone2, LocalPos, ...)
+	if Ent1:IsWorld() or Ent2:IsWorld() then return ac_detours.ballsocket(Ent1, Ent2, Bone1, Bone2, LocalPos, ...) end
+	if LocalPos:Length() >= 7162 then return false end
+	
+	return ac_detours.ballsocket(Ent1, Ent2, Bone1, Bone2, LocalPos, ...)
 end
 
 function constraint.Weld(ent1, ent2, ...)
 	local pos1, pos2 = ent1:GetPos(), ent2:GetPos()
 	--apparently a lot more resilient than the others
-	if pos1:Distance(pos2) >= 16384 then return false end
+	if Ent1:IsWorld() or Ent2:IsWorld() then return ac_detours.weld(ent1, ent2, ...) end
+	if pos1:DistToSqr(pos2) >= Too_Big_Weld then return false end
+	
 	return ac_detours.weld(ent1, ent2, ...)
 end
