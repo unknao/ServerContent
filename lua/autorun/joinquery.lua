@@ -1,6 +1,7 @@
 local tag = "join_query"
 
 if SERVER then
+	require("finishedloading")
 	util.AddNetworkString(tag)
 
 	net.Receive(tag, function(_, ply)
