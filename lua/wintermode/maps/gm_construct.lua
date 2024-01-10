@@ -37,10 +37,12 @@ end)
 
 
 --no skybox on this map
+if SERVER then
 local sky = ents.FindByClass("env_skypaint")[1]
-sky:SetDuskColor(Vector(1, 1, 1))
-sky:SetBottomColor(Vector(1, 1, 1))
-sky:SetTopColor(Vector( 0.34, 0.59, 1.0 ))
+	sky:SetDuskColor(Vector(1, 1, 1))
+	sky:SetBottomColor(Vector(1, 1, 1))
+	sky:SetTopColor(Vector( 0.34, 0.59, 1.0 ))
+end
 
 return {
 	["**displacement**"] = true

@@ -18,11 +18,11 @@ if SERVER then
 		end
 
 		PrintMessage(HUD_PRINTTALK, ply:Name() .. " has answered the join question.")
-		file.Write(tag .. "/" .. ply:SteamID64(), "")
+		file.Write(tag .. "/" .. ply:SteamID64() .. ".txt", "")
 	end)
 
 	hook.Add("FinishedLoading", tag, function(ply)
-		if file.Exists(tag .. "/" .. ply:SteamID64(), "DATA") then return end
+		if file.Exists(tag .. "/" .. ply:SteamID64() .. ".txt", "DATA") then return end
 
 		net.Start(tag)
 		net.Send(ply)
@@ -54,7 +54,6 @@ net.Receive(tag, function()
 
 	local E = vgui.Create("DTextEntry", D)
 	E:SetPlaceholderText("Your answer here.")
-	E:SetPlaceholderColor(Color(0, 0, 0))
 	E:Dock(TOP)
 	E.OnEnter = function(self)
 		net.Start(tag)
