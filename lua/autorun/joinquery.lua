@@ -18,11 +18,11 @@ if SERVER then
 		end
 
 		PrintMessage(HUD_PRINTTALK, ply:Name() .. " has answered the join question.")
-		file.Write(tag .. "/" .. ply:SteamID64() .. ".txt", "")
+		ply:SetPData(tag, true)
 	end)
 
 	hook.Add("FinishedLoading", tag, function(ply)
-		if file.Exists(tag .. "/" .. ply:SteamID64() .. ".txt", "DATA") then return end
+		if ply:GetPData(tag) then return end
 
 		net.Start(tag)
 		net.Send(ply)
