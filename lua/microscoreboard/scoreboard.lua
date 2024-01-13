@@ -24,4 +24,5 @@ hook.Add("ScoreboardHide", "Micro_Scoreboard", function()
         CreateScoreboard()
     end
     MICRO_SCORE.Scoreboard:SetVisible(false)
+    if MICRO_SCORE.Menu then MICRO_SCORE.Menu:Remove() end
 end)
