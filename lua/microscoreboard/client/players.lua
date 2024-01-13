@@ -65,7 +65,6 @@ function PANEL:SetPlayer(ply)
 
 	--Ranks
 	local Rank = RankImage[ply:GetUserGroup()]
-	print(ply:GetUserGroup(), Rank)
 	if not Rank then return end
 
 	self.Rank = self:Add("DImageButton")
