@@ -3,11 +3,10 @@ local tag = "modelprecache"
 require("stringtable")
 
 local AllowCreation = true
-Entity(0):SetNWInt(tag,  table.Count(StringTable(tag):GetTable()))
 
 hook.Add("OnEntityCreated", tag, function(ent)
 	local modelsprecached = table.Count(StringTable(tag):GetTable())
-	Entity(0):SetNWInt(tag,  modelsprecached)
+	SetGlobal2Int(tag,  modelsprecached)
 
 	if modelsprecached < 4090 then return end
 	if not countdown then return end
