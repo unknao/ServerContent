@@ -58,7 +58,7 @@ function PANEL:Paint(w, h)
     draw.SimpleText(Info1, "Micro_Scoreboard_16", 8, h - 5, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
 
 
-    local Info2 = "Double click to teleport to player"
+    local Info2 = "Click to teleport to player"
     local x2 = surface.GetTextSize(Info2)
     surface.DrawRect(w - 16 - x2, h - 25, 16 + x2, 25)
     draw.SimpleText(Info2, "Micro_Scoreboard_16", w - 8, h - 5, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)

@@ -76,9 +76,14 @@ function PANEL:SetPlayer(ply)
 	self.RankPadding = 16
 end
 
-function PANEL:CreateFlag(CountryCode, CountryName)
+function PANEL:DoClick()
+	if self.ply == LocalPlayer() then return end
+	if not ctrl then return end
 
+	local target = self.ply:Name()
+	ctrl.CallCommand(LocalPlayer(), "goto", {target}, target)
 end
+
 
 local clock = Material("icon16/time.png")
 function PANEL:Paint(w, h)

@@ -6,10 +6,12 @@ hook.Add("OnPlayerChat","fakechat",function(ply, strText)
 	return true
 
 end)
-
+local hide = {
+	["none"] = true,
+	["joinleave"] =  true
+}
 hook.Add("ChatText","hide_joinleave",function( index, name, text, typ )
-	print(index, name, text, typ)
-	if typ == "joinleave" then return true end
+	if hide[typ] then return true end
 end)
 
 net.Receive("chatprint", function()
