@@ -1,4 +1,5 @@
 local tag = "Micro_Scoreboard_Flags"
+require("nw3")
 
 hook.Add("PlayerInitialSpawn", tag, function(ply)
 	if ply:IsBot() then return end
@@ -11,7 +12,7 @@ hook.Add("PlayerInitialSpawn", tag, function(ply)
 	http.Fetch("http://ip-api.com/json/" .. ip,function(str)
 		local tbl = util.JSONToTable(str)
 		PrintTable(tbl)
-		ply:SetNWString("country_code", tbl.countryCode)
-		ply:SetNWString("country",tbl.country)
+		ply:nw3SetString("country_code", tbl.countryCode)
+		ply:nw3SetString("country",tbl.country)
 	end)
 end)

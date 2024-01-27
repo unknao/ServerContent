@@ -1,14 +1,18 @@
 local tag = "modelprecache"
 
+require("nw3")
 require("stringtable")
 
 local AllowCreation = true
+local modelprecache_cache, modelprecache = table.Count(StringTable(tag):GetTable()), table.Count(StringTable(tag):GetTable())
+nw3.SetGlobalInt(tag,  modelprecache)
 
 hook.Add("OnEntityCreated", tag, function(ent)
-	local modelsprecached = table.Count(StringTable(tag):GetTable())
-	SetGlobal2Int(tag,  modelsprecached)
+	modelprecache_cache = modelprecache
+	modelprecache = table.Count(StringTable(tag):GetTable())
+	if modelprecache_cache ~= modelprecache then nw3.SetGlobalInt(tag,  modelprecache) end
 
-	if modelsprecached < 4090 then return end
+	if modelprecache < 4090 then return end
 	if not countdown then return end
 
 	ent:SetModel("models/props_c17/streetsign004e.mdl")

@@ -1,4 +1,5 @@
 local PANEL = {}
+require("nw3")
 
 surface.CreateFont("Micro_Scoreboard_16",{
 	font = "HudHintTextLarge",
@@ -60,8 +61,8 @@ function PANEL:SetPlayer(ply)
 	self.Flag:SetSize(16, 12)
 	self.Flag:DockMargin(0, 4, 42, 4)
 	self.Flag:Dock(RIGHT)
-	self.Flag:SetImage("flags16/" .. ply:GetNWString("country_code") .. ".png")
-	self.Flag:SetTooltip(ply:GetNWString("country", "N/A"))
+	self.Flag:SetImage("flags16/" .. ply:nw3GetString("country_code") .. ".png")
+	self.Flag:SetTooltip(ply:nw3GetString("country", "N/A"))
 
 	--Ranks
 	local Rank = RankImage[ply:GetUserGroup()]

@@ -1,12 +1,15 @@
 local tag = "soundprecache"
+require("nw3")
 require("stringtable")
 
 local Countdown = false
-SetGlobal2Int(tag,  table.Count(StringTable(tag):GetTable()))
+local soundprecache_cache, soundprecache = table.Count(StringTable(tag):GetTable()), table.Count(StringTable(tag):GetTable())
+nw3.SetGlobalInt(tag,  soundprecache)
 
 hook.Add("EntityEmitSound", tag, function(ent)
-	local soundprecache = table.Count(StringTable(tag):GetTable())
-	SetGlobal2Int(tag, soundprecache)
+	soundprecache_cache = soundprecache
+	soundprecache = table.Count(StringTable(tag):GetTable())
+	if soundprecache_cache ~= soundprecache then nw3.SetGlobalInt(tag, soundprecache) end
 
 	if soundprecache < 16380 then return end
 	if Countdown then return false end

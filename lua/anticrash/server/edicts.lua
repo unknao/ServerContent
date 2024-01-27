@@ -1,11 +1,13 @@
 local tag = "edicts"
 local AllowCreation = true
+require("nw3")
 
 local EdictsCount = ents.GetEdictCount()
+nw3.SetGlobalInt(tag, EdictsCount)
 
 hook.Add("OnEntityCreated", tag, function()
 	EdictsCount = ents.GetEdictCount()
-	SetGlobal2Int(tag, EdictsCount)
+	nw3.SetGlobalInt(tag, EdictsCount)
 
 	if EdictsCount < 8170 then return end
 	if not AllowCreation then return end
@@ -17,7 +19,7 @@ end)
 hook.Add("EntityRemoved", tag, function()
 	timer.Simple(0, function()
 		EdictsCount = ents.GetEdictCount()
-		SetGlobal2Int(tag, EdictsCount)
+		nw3.SetGlobalInt(tag, EdictsCount)
 	end)
 end)
 

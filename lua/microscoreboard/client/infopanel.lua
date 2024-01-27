@@ -1,4 +1,5 @@
 PANEL = {}
+require("nw3")
 function PANEL:Init()
     self:SetTall(40)
     self:SetText("")
@@ -28,7 +29,7 @@ function PANEL:Paint(w, h)
     if isfunction(self.Name) then
         draw.SimpleText(self.Name() .. self.Max, "Micro_Scoreboard_16", w / 2, 30, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     else
-        draw.SimpleText(GetGlobal2Int(self.Name) .. self.Max, "Micro_Scoreboard_16", w / 2, 30, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.SimpleText(nw3.GetGlobalInt(self.Name) .. self.Max, "Micro_Scoreboard_16", w / 2, 30, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
 end
 

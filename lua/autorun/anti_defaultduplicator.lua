@@ -1,0 +1,1 @@
+hook.Add("PreRegisterTOOL", "anti_duplicator", function(_, class) return class ~= "duplicator" end)
