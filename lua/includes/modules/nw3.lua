@@ -23,7 +23,7 @@ nw3 = nw3 or {
     Entities = {}
 }
 
-local alias = {
+local tAlias = {
     Angle = isangle,
     Bool = isbool,
     Entity = isentity,
@@ -31,6 +31,15 @@ local alias = {
     Vector = isvector,
     Int = isnumber,
     Float = isnumber
+}
+local tFallbacks = {
+    Angle = Angle(0, 0, 0),
+    Bool = false,
+    Entity = NULL,
+    String = "",
+    Vector = Vector(0, 0, 0),
+    Int = 0,
+    Float = 0
 }
 
 if SERVER then
@@ -74,7 +83,7 @@ if SERVER then
     --"Set" Functions
     for k, v in pairs(nw3.Variables) do
         nw3["SetGlobal" .. k] = function(ID, Var)
-            if not alias[k](Var) then return end
+            if not tAlias[k](Var) then return end
             if nw3.Variables[k][ID] == Var then return end
 
             nw3.Variables[k][ID] = Var
@@ -87,7 +96,7 @@ if SERVER then
         end
 
         ENTITY["nw3Set" .. k] = function(self, ID, Var)
-            if not alias[k](Var) then return end
+            if not tAlias[k](Var) then return end
 
             nw3.Entities[self:EntIndex()] = nw3.Entities[self:EntIndex()] or {}
             nw3.Entities[self:EntIndex()][k] = nw3.Entities[self:EntIndex()][k] or {}
@@ -171,12 +180,20 @@ end
 
 --"Get" Functions
 for k, v in pairs(nw3.Variables) do
-    nw3["GetGlobal" .. k] = function(ID)
-        return nw3.Variables[k][ID]
+    nw3["GetGlobal" .. k] = function(ID, Fallback)
+        if nw3.Variables[k][ID] then
+            return nw3.Variables[k][ID]
+        else
+            return Fallback or tFallbacks[k]
+        end
     end
 
-    ENTITY["nw3Get" .. k] = function(self, ID)
-        return nw3.Entities[self:EntIndex()][k][ID]
+    ENTITY["nw3Get" .. k] = function(self, ID, Fallback)
+        if nw3.Entities[self:EntIndex()][k][ID] then
+            return nw3.Entities[self:EntIndex()][k][ID]
+        else
+            return Fallback or tFallbacks[k]
+        end
     end
 end
 

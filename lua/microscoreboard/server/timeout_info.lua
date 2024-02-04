@@ -1,7 +1,7 @@
-require("slowhooks")
+require("nw3")
 
-hook.Add("SlowTick","datastreamed",function()
-	for _,v in pairs(player.GetAll()) do
-		v:SetNWBool("timeout", v:IsTimingOut())
+timer.Create("MicroScore_TimeoutInfo", 3, 0, function()
+	for _, ply in pairs(player.GetHumans()) do
+		ply:nw3SetBool("IsTimingOut", v:IsTimingOut())
 	end
 end)

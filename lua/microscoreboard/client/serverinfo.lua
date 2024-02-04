@@ -1,7 +1,8 @@
 PANEL = {}
+require("slowthink")
 
-local tickrate_max = 1 / engine.TickInterval()
-timer.Create("SlowerTick", engine.TickInterval() * 6, 0, function() MICRO_SCORE.tickrate = math.floor(math.min(1 / engine.ServerFrameTime(), tickrate_max)) end)
+local fTickMax = 1 / engine.TickInterval()
+hook.Add("SlowThink", "MicroScore_Tickrate", function() MICRO_SCORE.tickrate = math.floor(math.min(1 / engine.ServerFrameTime(), fTickMax)) end)
 
 local TrackedValues = {
     {Name = "edicts", NiceName = "Edicts", Max = 8096},

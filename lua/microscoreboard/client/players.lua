@@ -122,7 +122,7 @@ function PANEL:Paint(w, h)
 	end
 
 	local ply = self.ply
-	local timeout = ply:GetNWBool("timeout")
+	local timeout = ply:nw3GetBool("IsTimingOut")
 	local color
 	--Background Color
 	for k ,v in pairs(self:GetChildren()) do
