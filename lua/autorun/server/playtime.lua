@@ -7,10 +7,10 @@ hook.Add("PlayerInitialSpawn", tag, function(ply)
 
     if not ply:GetPData("FirstJoin") then ply:SetPData("FirstJoin", os.time()) end
     ply._joined = RealTime()
-    ply:nw3SetFloat("Joined", RealTime())
+    ply:nw3SetInt("Joined", RealTime())
     if ply:GetPData(tag) then
         ply._playtime = tonumber(ply:GetPData(tag))
-        ply:nw3SetFloat(tag, ply._playtime)
+        ply:nw3SetInt(tag, ply._playtime)
         return
     end
 
