@@ -11,7 +11,6 @@ hook.Add("PlayerInitialSpawn", tag, function(ply)
 
 	http.Fetch("http://ip-api.com/json/" .. ip,function(str)
 		local tbl = util.JSONToTable(str)
-		PrintTable(tbl)
 		ply:nw3SetString("country_code", tbl.countryCode)
 		ply:nw3SetString("country",tbl.country)
 	end)

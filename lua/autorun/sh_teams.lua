@@ -1,6 +1,6 @@
-team.SetUp(1, "Users", Color(100, 200, 180), false)
-team.SetUp(2, "Admins", Color(200, 180, 100), false)
-team.SetUp(3, "Bots", Color(70, 150, 70), false)
+team.SetUp(1, "Users", Color(127, 255, 212), false)
+team.SetUp(2, "Admins", Color(255, 191, 0), false)
+team.SetUp(3, "Bots", Color(58, 171, 117), false)
 team.SetUp(4, "Joining", Color(70, 70, 70), false)
 
 if not SERVER then return end

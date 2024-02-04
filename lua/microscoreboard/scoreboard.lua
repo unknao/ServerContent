@@ -1,5 +1,3 @@
-require("finishedloading")
-
 local function CreateScoreboard()
     if IsValid(MICRO_SCORE.Scoreboard) then MICRO_SCORE.Scoreboard:Remove() end
 
@@ -13,11 +11,6 @@ local function CreateInfoPanel()
     MICRO_SCORE.InfoPanel = vgui.Create("DServerInfo")
     MICRO_SCORE.InfoPanel:SetVisible(false)
 end
-
-hook.Add("FinishedLoading", "Micro_Scoreboard",function()
-    CreateScoreboard()
-    CreateInfoPanel()
-end)
 
 concommand.Add("recreatescoreboard", function()
     CreateScoreboard()

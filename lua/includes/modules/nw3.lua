@@ -37,7 +37,9 @@ if SERVER then
     util.AddNetworkString("nw3.sync")
     util.AddNetworkString("nw3.sync.entity")
 
-    hook.Add("PlayerInitialSpawn", "nw3.sync", function(ply)
+    gameevent.Listen("OnRequestFullUpdate")
+    hook.Add("OnRequestFullUpdate", "nw3.sync", function(data)
+        local ply = Entity(data.index + 1)
         for k,v in pairs(nw3.Variables) do
             if table.IsEmpty(v) then continue end
 
@@ -85,7 +87,6 @@ if SERVER then
         end
 
         ENTITY["nw3Set" .. k] = function(self, ID, Var)
-            print(self, ID, Var)
             if not alias[k](Var) then return end
 
             nw3.Entities[self:EntIndex()] = nw3.Entities[self:EntIndex()] or {}
