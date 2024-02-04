@@ -83,7 +83,7 @@ if SERVER then
     --"Set" Functions
     for k, v in pairs(nw3.Variables) do
         nw3["SetGlobal" .. k] = function(ID, Var)
-            if not tAlias[k](Var) then return end
+            if not tAlias[k](Var) then return print(string.format("[nw3] Attempted to set a(n) %s with the %s function!", type(Var), k)) end
             if nw3.Variables[k][ID] == Var then return end
 
             nw3.Variables[k][ID] = Var
@@ -96,7 +96,7 @@ if SERVER then
         end
 
         ENTITY["nw3Set" .. k] = function(self, ID, Var)
-            if not tAlias[k](Var) then return end
+            if not tAlias[k](Var) then return print(string.format("[nw3] Attempted to set a(n) %s with the %s function on Entity(%i)!", type(Var), k, self:EntIndex())) end
 
             nw3.Entities[self:EntIndex()] = nw3.Entities[self:EntIndex()] or {}
             nw3.Entities[self:EntIndex()][k] = nw3.Entities[self:EntIndex()][k] or {}
@@ -189,7 +189,7 @@ for k, v in pairs(nw3.Variables) do
     end
 
     ENTITY["nw3Get" .. k] = function(self, ID, Fallback)
-        if nw3.Entities[self:EntIndex()][k][ID] then
+        if nw3.Entities[self:EntIndex()][k] and nw3.Entities[self:EntIndex()][k][ID] then
             return nw3.Entities[self:EntIndex()][k][ID]
         else
             return Fallback or tFallbacks[k]
@@ -205,6 +205,7 @@ hook.Add("EntityRemoved", "nw3.entitymanagement", function(ent, fullupdate)
 end)
 
 if SERVER then return end
+local bDebugPrint = CreateConVar("nw3_debugprint", 0, FCVAR_ARCHIVE, "Prints the set nw3 entries as they are being received from the server if not 0", 0, 1)
 
 net.Receive("nw3.sync", function()
     local typ = net.ReadString()
@@ -219,7 +220,7 @@ net.Receive("nw3.sync", function()
         else
             Var = net["Read" .. typ]()
         end
-
+        if bDebugPrint:GetBool() then print(string.format("[nw3] Global %s, %s, %s", typ, ID, Var)) end
         nw3.Variables[typ][ID] = Var
     end
 end)
@@ -243,8 +244,8 @@ net.Receive("nw3.sync.entity", function()
             Var = net["Read" .. typ]()
         end
 
+        if bDebugPrint:GetBool() then print(string.format("[nw3] Entity(%i) %s, %s, %s", entindex, typ, ID, Var)) end
         nw3.Entities[entindex][typ][ID] = Var
-        print(entindex, typ, ID, Var)
     end
 end)
 

@@ -3,7 +3,7 @@ surface.CreateFont("Micro_Scoreboard_32",{
     font = "HudHintTextLarge",
     size = 32,
     antialias = false,
-    outline = true,
+    outline = false,
     weight = 1000
 })
 MICRO_SCORE.PlayerPanels = {}
@@ -63,7 +63,8 @@ function PANEL:Paint(w, h)
     surface.DrawRect(w - 16 - x2, h - 25, 16 + x2, 25)
     draw.SimpleText(Info2, "Micro_Scoreboard_16", w - 8, h - 5, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
 
-    draw.SimpleText(GetHostName(), "Micro_Scoreboard_32", w / 2, 30, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
+    --draw.SimpleText(GetHostName(), "Micro_Scoreboard_32", w / 2, 30, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
+    draw.SimpleTextOutlined(GetHostName(), "Micro_Scoreboard_32", w / 2, 26, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 1, color_black)
 end
 
 hook.Add("OnEntityCreated", "Micro_Scoreboard_PlayerJoin", function(ply)

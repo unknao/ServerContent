@@ -1,7 +1,7 @@
 require("nw3")
 
-timer.Create("MicroScore_TimeoutInfo", 3, 0, function()
+timer.Create("MicroScore_TimeoutInfo", 4, 0, function()
 	for _, ply in pairs(player.GetHumans()) do
-		ply:nw3SetBool("IsTimingOut", v:IsTimingOut())
+		ply:nw3SetBool("IsTimingOut", ply:IsTimingOut())
 	end
 end)
