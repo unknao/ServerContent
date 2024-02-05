@@ -1,10 +1,10 @@
 local PANEL = {}
 surface.CreateFont("Micro_Scoreboard_32",{
-    font = "HudHintTextLarge",
-    size = 32,
+    font = "a Akhir Tahun",
+    size = 30,
     antialias = false,
     outline = false,
-    weight = 1000
+    weight = 3000
 })
 MICRO_SCORE.PlayerPanels = {}
 local Max_Players_On_Scoreboard = CreateConVar("scoreboard_maxplayers", "10", {FCVAR_ARCHIVE}, "Determines how many players can be on the scoreboard without a scroll bar.")
@@ -64,7 +64,7 @@ function PANEL:Paint(w, h)
     draw.SimpleText(Info2, "Micro_Scoreboard_16", w - 8, h - 5, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
 
     --draw.SimpleText(GetHostName(), "Micro_Scoreboard_32", w / 2, 30, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
-    draw.SimpleTextOutlined(GetHostName(), "Micro_Scoreboard_32", w / 2, 26, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 1, color_black)
+    draw.SimpleTextOutlined(GetHostName(), "Micro_Scoreboard_32", w / 2, 0, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, color_black)
 end
 
 hook.Add("OnEntityCreated", "Micro_Scoreboard_PlayerJoin", function(ply)

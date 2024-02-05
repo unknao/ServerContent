@@ -15,8 +15,8 @@ local TrackedValues = {
 }
 
 function PANEL:Init()
-    self:SetSize(100, 400)
-    self:SetPos(ScrW() - 100, ScrH() - 420)
+    self:SetSize(120, 400)
+    self:SetPos(ScrW() - 120, ScrH() - 420)
     self:SetTitle("")
     self:DockPadding(0, 0, 0, 0)
     self:ShowCloseButton(true)

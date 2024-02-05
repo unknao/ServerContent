@@ -2,14 +2,14 @@ local PANEL = {}
 require("nw3")
 
 surface.CreateFont("Micro_Scoreboard_16",{
-	font = "HudHintTextLarge",
-	size = 16,
-	antialias = true
+	font = "Better VCR",
+	size = 11,
+	weight = 550
 })
 
 local RankImage = {
-	["superadmin"] = {Icon = "icon16/shield.png", NiceName = "Super Admin"},
-	["admin"] = {Icon = "icon16/award_star_bronze_1.png", NiceName = "Admin"}
+	["superadmin"] = {Icon = "icons8/shield.png", NiceName = "Super Admin"},
+	["admin"] = {Icon = "icons8/badge.png", NiceName = "Admin"}
 }
 
 
@@ -110,10 +110,10 @@ function PANEL:SetPlayer(ply)
 	self.Rank:SetTooltip(Rank.NiceName)
 	self.Rank:SetTooltipPanelOverride("MS_Tooltip")
 
-	self.RankPadding = 16
+	self.RankPadding = 14
 end
 
-local clock = Material("icon16/time.png")
+local clock = Material("icons8/clock.png")
 function PANEL:Paint(w, h)
 	if not IsValid(self.ply) then
 		self:Remove()
@@ -159,8 +159,8 @@ function PANEL:Paint(w, h)
 	end
 	draw.SimpleText(playtime .. format, "Micro_Scoreboard_16", w - 80, 10, color_black, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 
-	surface.SetDrawColor(color_white)
 	surface.SetMaterial(clock)
+	surface.SetDrawColor(color_black)
 	surface.DrawTexturedRect(w - 78, 2, 16, 16)
 end
 

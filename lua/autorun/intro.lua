@@ -1,7 +1,7 @@
 if SERVER then
 	resource.AddSingleFile("resource/fonts/AGENCYR.ttf")
 	resource.AddSingleFile("resource/fonts/ITCEDSCR.ttf")
-	 return
+	return
 end
 
 local tag = "serverintro"
