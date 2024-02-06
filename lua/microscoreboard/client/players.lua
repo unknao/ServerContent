@@ -7,11 +7,19 @@ surface.CreateFont("Micro_Scoreboard_16",{
 	weight = 550
 })
 
-local RankImage = {
-	["superadmin"] = {Icon = "icons8/shield.png", NiceName = "Super Admin"},
-	["admin"] = {Icon = "icons8/badge.png", NiceName = "Admin"}
-}
+local clock = Material("icons8/16/clock.png")
+clock:SetVector("$color", vector_origin)
+local badge = Material("icons8/16/badge.png")
+badge:SetVector("$color", vector_origin)
+local broom = Material("icons8/16/clean.png")
+broom:SetVector("$color", vector_origin)
 
+local GradientUp = Material("vgui/gradient-r")
+
+local RankImage = {
+	["superadmin"] = {Icon = badge, NiceName = "Super Admin"},
+	["admin"] = {Icon = broom, NiceName = "Admin"}
+}
 
 function PANEL:Init()
 	self:SetTall(20)
@@ -81,28 +89,31 @@ function PANEL:SetPlayer(ply)
 		end
 		MICRO_SCORE.Menu:Open()
 	end
+	self.GradientColor = GAMEMODE:GetTeamColor(ply)
+	self.GradientColor.a = 100
 
 	self.Profile.DoClick = function() self.ply:ShowProfile() end
 	self.ProfileTooltip = self.Profile:Add("MS_TooltipImage")
 	self.ProfileTooltip:SetPlayer(self.ply)
 	self.Profile:SetTooltipPanel(self.ProfileTooltip)
 
-	if ply:IsBot() then return end
-	self.Flag = self:Add("DImageButton")
-	self.Flag:SetSize(16, 12)
-	self.Flag:DockMargin(0, 4, 42, 4)
-	self.Flag:Dock(RIGHT)
-	self.Flag:SetImage("flags16/" .. ply:nw3GetString("country_code") .. ".png")
-	self.Flag:SetDepressImage(false)
-	self.Flag:SetTooltip(ply:nw3GetString("country", "N/A"))
-	self.Flag:SetTooltipPanelOverride("MS_Tooltip")
+	if not ply:IsBot() then
+		self.Flag = self:Add("DImageButton")
+		self.Flag:SetSize(16, 12)
+		self.Flag:DockMargin(0, 4, 42, 4)
+		self.Flag:Dock(RIGHT)
+		self.Flag:SetImage("flags16/" .. ply:nw3GetString("country_code") .. ".png")
+		self.Flag:SetDepressImage(false)
+		self.Flag:SetTooltip(ply:nw3GetString("country", "N/A"))
+		self.Flag:SetTooltipPanelOverride("MS_Tooltip")
+	end
 
 	--Ranks
 	local Rank = RankImage[ply:GetUserGroup()]
 	if not Rank then return end
 
 	self.Rank = self:Add("DImageButton")
-	self.Rank:SetImage(Rank.Icon)
+	self.Rank:SetMaterial(Rank.Icon)
 	self.Rank:SetDepressImage(false)
 	self.Rank:SetSize(16, 16)
 	self.Rank:DockMargin(2, 2, 0, 2)
@@ -113,7 +124,6 @@ function PANEL:SetPlayer(ply)
 	self.RankPadding = 14
 end
 
-local clock = Material("icons8/clock.png")
 function PANEL:Paint(w, h)
 	if not IsValid(self.ply) then
 		self:Remove()
@@ -122,7 +132,6 @@ function PANEL:Paint(w, h)
 	end
 
 	local ply = self.ply
-	local timeout = ply:nw3GetBool("IsTimingOut")
 	local color
 	--Background Color
 	for k ,v in pairs(self:GetChildren()) do
@@ -131,22 +140,24 @@ function PANEL:Paint(w, h)
 		if hover then break end
 	end
 
+	if not ply:IsBot() then local timeout = ply:nw3GetBool("IsTimingOut") end
 	self.Hovered = self:IsHovered() or self:IsChildHovered()
-	if self.Hovered then
-		color = timeout and MICRO_SCORE.Player_Timeout_BGColor_Hovered or MICRO_SCORE.Player_BGColor_Hovered
-	else
-		color = timeout and MICRO_SCORE.Player_Timeout_BGColor or MICRO_SCORE.Player_BGColor
-	end
-
-	surface.SetDrawColor(color)
+	surface.SetDrawColor(timeout and MICRO_SCORE.Player_Timeout_BGColor or MICRO_SCORE.Player_BGColor)
 	surface.DrawRect(0, 0, w, h)
 
-	--Text
-	draw.SimpleText(self.ply:Name(), "Micro_Scoreboard_16", 25 + self.RankPadding, 10, color_black, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
-	draw.SimpleText(self.ply:IsBot() and "BOT" or self.ply:Ping(), "Micro_Scoreboard_16", w - 5, 10, MICRO_SCORE.Player_PingColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+	if self.Hovered then
+		surface.SetDrawColor(timeout and MICRO_SCORE.Player_Timeout_BGColor_Hovered or MICRO_SCORE.Player_BGColor_Hovered)
+		surface.SetMaterial(GradientUp)
+		surface.DrawTexturedRect(0, 0, w, h)
+	end
 
-	if self.ply:IsBot() then return end
-	local playtime = self.ply:nw3GetInt("Playtime") + (RealTime() - self.ply:nw3GetInt("Joined"))
+	--Text
+	draw.SimpleText(ply:Name(), "Micro_Scoreboard_16", 25 + self.RankPadding, 10, color_black, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+
+	draw.SimpleText(ply:IsBot() and "BOT" or ply:Ping(), "Micro_Scoreboard_16", w - 5, 10, MICRO_SCORE.Player_PingColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+
+	if ply:IsBot() then return end
+	local playtime = ply:nw3GetInt("Playtime") + (RealTime() - ply:nw3GetInt("Joined"))
 
 	local format = "h"
 	if playtime < 3600 then

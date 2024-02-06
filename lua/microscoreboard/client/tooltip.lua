@@ -26,8 +26,8 @@ end
 
 function TOOLTIPIMAGE:SetPlayer(ply)
 	self.Image = self:Add("AvatarImage")
-	self.Image:SetSize(184, 184)
-	self.Image:SetPlayer(ply, 184)
+	self.Image:SetSize(186, 186)
+	self.Image:SetPlayer(ply, 186)
 	self:SetContents(self.Image, true)
 end
 

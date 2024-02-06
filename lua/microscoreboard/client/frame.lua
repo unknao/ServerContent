@@ -12,19 +12,22 @@ local Max_Players_On_Scoreboard = CreateConVar("scoreboard_maxplayers", "10", {F
 
 function PANEL:UpdateSize(Count)
     local y = 85 + (23 * (math.min(Count, Max_Players_On_Scoreboard:GetInt()) - 1))
-    self:SetSize(700, y)
-    self:Center()
+    self.DesiredSize = y
+    if not self.IsOpen then return end
+
+    self:SizeTo(-1, self.DesiredSize, 0.5, 0, 0.2)
+    self:MoveTo(ScrW() / 2 - 350, ScrH() / 2 - self.DesiredSize / 2, 0.5, 0, 0.2)
 end
 
 function PANEL:Init()
+    self:SetSize(700, 0)
+    self:Center()
     self:DockPadding(5, 35, 5, 30)
     self:SetTitle("")
     self:ShowCloseButton(false)
     self:SetDraggable(false)
     self:SetSizable(false)
-    self.L_OpenStage = 0
-    self.OpenStage = 0
-    self.Multiplier = -1
+    self.IsOpen = false
 
     MICRO_SCORE.ScrollPanel = self:Add("DScrollPanel")
     MICRO_SCORE.ScrollPanel:Dock(FILL)
@@ -65,6 +68,24 @@ function PANEL:Paint(w, h)
 
     --draw.SimpleText(GetHostName(), "Micro_Scoreboard_32", w / 2, 30, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
     draw.SimpleTextOutlined(GetHostName(), "Micro_Scoreboard_32", w / 2, 0, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, color_black)
+end
+
+function PANEL:Open()
+    self.IsOpen = true
+    self:SetVisible(true)
+    self:MakePopup()
+    self:SetKeyboardInputEnabled(false)
+    self:SizeTo(-1, self.DesiredSize, 0.5, 0, 0.2)
+    self:MoveTo(ScrW() / 2 - 350, ScrH() / 2 - self.DesiredSize / 2, 0.5, 0, 0.2)
+end
+
+function PANEL:Close()
+    self.IsOpen = false
+    self:SetMouseInputEnabled(false)
+    self:SizeTo(-1, 0, 0.5, 0, 0.2)
+    self:MoveTo(ScrW() / 2 - 350, ScrH() / 2, 0.5, 0, 0.2, function()
+        if not self.IsOpen then self:SetVisible(false) end
+    end)
 end
 
 hook.Add("OnEntityCreated", "Micro_Scoreboard_PlayerJoin", function(ply)

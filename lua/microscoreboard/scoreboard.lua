@@ -21,14 +21,12 @@ hook.Add("ScoreboardShow", "Micro_Scoreboard", function()
     if not IsValid(MICRO_SCORE.Scoreboard) then
         CreateScoreboard()
     end
-    MICRO_SCORE.Scoreboard:SetVisible(true)
-    MICRO_SCORE.Scoreboard:MakePopup()
-    MICRO_SCORE.Scoreboard:SetKeyboardInputEnabled(false)
+    MICRO_SCORE.Scoreboard:Open()
 
     if not IsValid(MICRO_SCORE.InfoPanel) then
         CreateInfoPanel()
     end
-    MICRO_SCORE.InfoPanel:SetVisible(true)
+    MICRO_SCORE.InfoPanel:Open()
     return true
 end)
 
@@ -36,11 +34,11 @@ hook.Add("ScoreboardHide", "Micro_Scoreboard", function()
     if not IsValid(MICRO_SCORE.Scoreboard) then
         CreateScoreboard()
     end
-    MICRO_SCORE.Scoreboard:SetVisible(false)
+    MICRO_SCORE.Scoreboard:Close()
     if MICRO_SCORE.Menu then MICRO_SCORE.Menu:Remove() end
 
     if not IsValid(MICRO_SCORE.InfoPanel) then
         CreateInfoPanel()
     end
-    MICRO_SCORE.InfoPanel:SetVisible(false)
+    MICRO_SCORE.InfoPanel:Close()
 end)
