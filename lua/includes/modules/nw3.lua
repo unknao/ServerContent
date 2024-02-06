@@ -46,20 +46,29 @@ if SERVER then
     util.AddNetworkString("nw3.sync")
     util.AddNetworkString("nw3.sync.entity")
 
-    gameevent.Listen("OnRequestFullUpdate")
-    hook.Add("OnRequestFullUpdate", "nw3.sync", function(data)
-        local ply = Entity(data.index + 1)
+    function nw3.SyncClient(ply)
         for k,v in pairs(nw3.Variables) do
             if table.IsEmpty(v) then continue end
 
             net.Start("nw3.sync")
             net.WriteString(k)
-            net.WriteUInt(table.Count(v), 12)
             for kk, vv in pairs(v) do
                 net.WriteString(kk)
-                if k == "Int" then net.WriteInt(vv, 32) continue end
-                net["Write" .. k](vv)
+                if k == "Int" then
+                    net.WriteInt(vv, 32)
+                else
+                    net["Write" .. k](vv)
+                end
+
+                if net.BytesWritten() >= 65000 then
+                    net.WriteString("-")
+                    net.Send(ply)
+                    coroutine.wait(engine.TickInterval())
+                    net.Start("nw3.sync")
+                    net.WriteString(k)
+                end
             end
+            net.WriteString("-")
             net.Send(ply)
         end
         for i, Var1 in pairs(nw3.Entities) do
@@ -69,34 +78,55 @@ if SERVER then
                 net.Start("nw3.sync.entity")
                 net.WriteUInt(i, 13)
                 net.WriteString(typ)
-                net.WriteUInt(table.Count(Var2), 12)
                 for k, v in pairs(Var2) do
                     net.WriteString(k)
-                    if typ == "Int" then net.WriteInt(v, 32) continue end
-                    net["Write" .. typ](v)
+                    if typ == "Int" then
+                        net.WriteInt(v, 32)
+                    else
+                        net["Write" .. typ](v)
+                    end
+
+                    if net.BytesWritten() >= 65000 then
+                        net.WriteString("-")
+                        net.Send(ply)
+                        coroutine.wait(engine.TickInterval())
+                        net.Start("nw3.sync.entity")
+                        net.WriteUInt(i, 13)
+                        net.WriteString(typ)
+                    end
                 end
+                net.WriteString("-")
                 net.Send(ply)
             end
         end
+    end
+
+    gameevent.Listen("OnRequestFullUpdate")
+    hook.Add("OnRequestFullUpdate", "nw3.sync", function(data)
+        local ply = Entity(data.index + 1)
+        local co = coroutine.create(nw3.SyncClient)
+        coroutine.resume(co, ply)
     end)
 
     --"Set" Functions
     for k, v in pairs(nw3.Variables) do
         nw3["SetGlobal" .. k] = function(ID, Var)
-            if not tAlias[k](Var) then return print(string.format("[nw3] Attempted to set a(n) %s with the %s function!", type(Var), k)) end
+            if not tAlias[k](Var) then error(string.format("Attempted to set a(n) %s with the %s function!", type(Var), k)) return end
+            if ID == "-" then error("Attempted to set the ID with an internally reserved name!") return end
             if nw3.Variables[k][ID] == Var then return end
 
             nw3.Variables[k][ID] = Var
             net.Start("nw3.sync")
             net.WriteString(k)
-            net.WriteUInt(1, 12)
             net.WriteString(ID)
             net["Write" .. k](Var)
+            net.WriteString("-")
             net.Broadcast()
         end
 
         ENTITY["nw3Set" .. k] = function(self, ID, Var)
-            if not tAlias[k](Var) then return print(string.format("[nw3] Attempted to set a(n) %s with the %s function on Entity(%i)!", type(Var), k, self:EntIndex())) end
+            if not tAlias[k](Var) then error(string.format("Attempted to set a(n) %s with the %s function on Entity(%i)!", type(Var), k, self:EntIndex())) return end
+            if ID == "-" then error("Attempted to set the ID with an internally reserved name!") return end
 
             nw3.Entities[self:EntIndex()] = nw3.Entities[self:EntIndex()] or {}
             nw3.Entities[self:EntIndex()][k] = nw3.Entities[self:EntIndex()][k] or {}
@@ -106,44 +136,48 @@ if SERVER then
             net.Start("nw3.sync.entity")
             net.WriteUInt(self:EntIndex(), 13)
             net.WriteString(k)
-            net.WriteUInt(1, 12)
             net.WriteString(ID)
             net["Write" .. k](Var)
+            net.WriteString("-")
             net.Broadcast()
         end
     end
 
     --Global Exceptions
     function nw3.SetGlobalFloat(ID, Var)
-        if not isnumber(Var) then return end
+        if not isnumber(Var) then error(string.format("Attempted to set a(n) %s with the float function!", type(Var))) return end
+        if ID == "-" then error("Attempted to set the ID with an internally reserved name!") return end
         if nw3.Variables.Float[ID] == Var then return end
 
         nw3.Variables.Float[ID] = Var
         net.Start("nw3.sync")
         net.WriteString("Float")
-        net.WriteUInt(1, 12)
         net.WriteString(ID)
         net.WriteFloat(Var)
+        net.WriteString("-")
         net.Broadcast()
     end
 
     function nw3.SetGlobalInt(ID, Var)
-        if not isnumber(Var) then return end
+        if not isnumber(Var) then error(string.format("Attempted to set a(n) %s with the interger function!", type(Var))) return end
+        if ID == "-" then error("Attempted to set the ID with an internally reserved name!") return end
+
         local Var = math.floor(Var)
         if nw3.Variables.Int[ID] == Var then return end
 
         nw3.Variables.Int[ID] = Var
         net.Start("nw3.sync")
         net.WriteString("Int")
-        net.WriteUInt(1, 12)
         net.WriteString(ID)
         net.WriteInt(Var, 32)
+        net.WriteString("-")
         net.Broadcast()
     end
 
     --Entity Exceptions
     function ENTITY:nw3SetFloat(ID, Var)
-        if not isnumber(Var) then return end
+        if not isnumber(Var) then error(string.format("Attempted to set a(n) %s with the float function!", type(Var))) return end
+        if ID == "-" then error("Attempted to set the ID with an internally reserved name!") return end
 
         nw3.Entities[self:EntIndex()] = nw3.Entities[self:EntIndex()] or {}
         nw3.Entities[self:EntIndex()].Float = nw3.Entities[self:EntIndex()].Float or {}
@@ -153,14 +187,16 @@ if SERVER then
         net.Start("nw3.sync.entity")
         net.WriteUInt(self:EntIndex(), 13)
         net.WriteString("Float")
-        net.WriteUInt(1, 12)
         net.WriteString(ID)
         net.WriteFloat(Var)
+        net.WriteString("-")
         net.Broadcast()
     end
 
     function ENTITY:nw3SetInt(ID, Var)
-        if not isnumber(Var) then return end
+        if not isnumber(Var) then error(string.format("Attempted to set a(n) %s with the interger function!", type(Var))) return end
+        if ID == "-" then error("Attempted to set the ID with an internally reserved name!") return end
+
         local Var = math.floor(Var)
 
         nw3.Entities[self:EntIndex()] = nw3.Entities[self:EntIndex()] or {}
@@ -171,9 +207,9 @@ if SERVER then
         net.Start("nw3.sync.entity")
         net.WriteUInt(self:EntIndex(), 13)
         net.WriteString("Int")
-        net.WriteUInt(1, 12)
         net.WriteString(ID)
         net.WriteInt(Var, 32)
+        net.WriteString("-")
         net.Broadcast()
     end
 end
@@ -209,10 +245,10 @@ local bDebugPrint = CreateConVar("nw3_debugprint", 0, FCVAR_ARCHIVE, "Prints the
 
 net.Receive("nw3.sync", function()
     local typ = net.ReadString()
-    local index = net.ReadUInt(12)
     --Bulk processing
-    for i = 1, index do
+    while true do
         local ID = net.ReadString()
+        if ID == "-" then return end
 
         local Var
         if typ == "Int" then
@@ -228,14 +264,14 @@ end)
 net.Receive("nw3.sync.entity", function()
     local entindex = net.ReadUInt(13)
     local typ = net.ReadString()
-    local index = net.ReadUInt(12)
 
     nw3.Entities[entindex] = nw3.Entities[entindex] or {}
     nw3.Entities[entindex][typ] = nw3.Entities[entindex][typ] or {}
 
     --Bulk processing
-    for i = 1, index do
+    while true do
         local ID = net.ReadString()
+        if ID == "-" then return end
 
         local Var
         if typ == "Int" then
