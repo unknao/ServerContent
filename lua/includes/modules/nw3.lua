@@ -63,7 +63,7 @@ if SERVER then
                 if net.BytesWritten() >= 65000 then
                     net.WriteString("-")
                     net.Send(ply)
-                    coroutine.wait(engine.TickInterval())
+                    coroutine.wait(0)
                     net.Start("nw3.sync")
                     net.WriteString(k)
                 end
@@ -89,7 +89,7 @@ if SERVER then
                     if net.BytesWritten() >= 65000 then
                         net.WriteString("-")
                         net.Send(ply)
-                        coroutine.wait(engine.TickInterval())
+                        coroutine.wait(0)
                         net.Start("nw3.sync.entity")
                         net.WriteUInt(i, 13)
                         net.WriteString(typ)
@@ -103,114 +103,135 @@ if SERVER then
 
     gameevent.Listen("OnRequestFullUpdate")
     hook.Add("OnRequestFullUpdate", "nw3.sync", function(data)
-        local ply = Entity(data.index + 1)
         local co = coroutine.create(nw3.SyncClient)
-        coroutine.resume(co, ply)
+        coroutine.resume(co, Entity(data.index + 1))
     end)
+
+    --Queue building & handling
+    nw3.GlobalQueue = nw3.GlobalQueue or {}
+    local function nw3FlushGlobalQueue()
+        if player.GetCount() == 0 then return end
+
+        for Type, TypeTable in pairs(nw3.GlobalQueue) do
+            net.Start("nw3.sync")
+            net.WriteString(Type)
+            for ID, Val in pairs(TypeTable) do
+                net.WriteString(ID)
+                if Type == "Int" then
+                    net.WriteInt(Val, 32)
+                else
+                    net["Write" .. Type](Val)
+                end
+
+                nw3.GlobalQueue[Type][ID] = nil
+                if net.BytesWritten() >= 65000 then
+                    net.WriteString("-")
+                    net.Broadcast()
+                    coroutine.wait(0)
+                    net.Start("nw3.sync")
+                    net.WriteString(Type)
+                end
+            end
+            net.WriteString("-")
+            net.Broadcast()
+            nw3.GlobalQueue[Type] = nil
+        end
+    end
+
+    local function nw3AddToGlobalQueue(Type, ID, Var)
+        if nw3.Variables[Type][ID] == Var then return end
+        nw3.Variables[Type][ID] = Var
+
+        if not nw3.GlobalQueue[Type] then nw3.GlobalQueue[Type] = {} end
+        nw3.GlobalQueue[Type][ID] = Var
+
+        timer.Create("nw3FlushGlobalQueue", 0, 1, function()
+            local co = coroutine.create(nw3FlushGlobalQueue)
+            coroutine.resume(co)
+        end)
+    end
+
+    nw3.EntityQueue = nw3.EntityQueue or {}
+    local function nw3FlushEntityQueue()
+        if player.GetCount() == 0 then return end
+
+        for EntIndex, EntTable in pairs(nw3.EntityQueue) do
+            for Type, TypeTable in pairs(EntTable) do
+                net.Start("nw3.sync.entity")
+                net.WriteUInt(EntIndex, 13)
+                net.WriteString(Type)
+                for ID, Val in pairs(TypeTable) do
+                    net.WriteString(ID)
+                    if Type == "Int" then
+                        net.WriteInt(Val, 32)
+                    else
+                        net["Write" .. Type](Val)
+                    end
+
+                    if net.BytesWritten() >= 65000 then
+                        net.WriteString("-")
+                        net.Broadcast()
+                        coroutine.wait(0)
+                        net.Start("nw3.sync.entity")
+                        net.WriteUInt(EntIndex, 13)
+                        net.WriteString(Type)
+                    end
+                    nw3.EntityQueue[EntIndex][Type][ID] = nil
+                end
+                net.WriteString("-")
+                net.Broadcast()
+                nw3.EntityQueue[EntIndex][Type] = nil
+            end
+            nw3.EntityQueue[EntIndex] = nil
+        end
+    end
+
+    local function nw3AddToEntityQueue(EntIndex, Type, ID, Var)
+        if not nw3.Entities[EntIndex] then nw3.Entities[EntIndex] = {} end
+        if not nw3.Entities[EntIndex][Type] then nw3.Entities[EntIndex][Type] = {} end
+        if nw3.Entities[EntIndex][Type][ID] == Var then return end
+        nw3.Entities[EntIndex][Type][ID] = Var
+
+        if not nw3.EntityQueue[EntIndex] then nw3.EntityQueue[EntIndex] = {} end
+        if not nw3.EntityQueue[EntIndex][Type] then nw3.EntityQueue[EntIndex][Type] = {} end
+        nw3.EntityQueue[EntIndex][Type][ID] = Var
+
+        timer.Create("nw3FlushEntityQueue", 0, 1, function()
+            local co = coroutine.create(nw3FlushEntityQueue)
+            coroutine.resume(co)
+        end)
+    end
 
     --"Set" Functions
     for k, v in pairs(nw3.Variables) do
         nw3["SetGlobal" .. k] = function(ID, Var)
             if not tAlias[k](Var) then error(string.format("Attempted to set a(n) %s with the %s function!", type(Var), k)) return end
             if ID == "-" then error("Attempted to set the ID with an internally reserved name!") return end
-            if nw3.Variables[k][ID] == Var then return end
 
-            nw3.Variables[k][ID] = Var
-            net.Start("nw3.sync")
-            net.WriteString(k)
-            net.WriteString(ID)
-            net["Write" .. k](Var)
-            net.WriteString("-")
-            net.Broadcast()
+            nw3AddToGlobalQueue(k, ID, Var)
         end
 
         ENTITY["nw3Set" .. k] = function(self, ID, Var)
             if not tAlias[k](Var) then error(string.format("Attempted to set a(n) %s with the %s function on Entity(%i)!", type(Var), k, self:EntIndex())) return end
             if ID == "-" then error("Attempted to set the ID with an internally reserved name!") return end
 
-            nw3.Entities[self:EntIndex()] = nw3.Entities[self:EntIndex()] or {}
-            nw3.Entities[self:EntIndex()][k] = nw3.Entities[self:EntIndex()][k] or {}
-            if nw3.Entities[self:EntIndex()][k][ID] == Var then return end
-            nw3.Entities[self:EntIndex()][k][ID] = Var
-
-            net.Start("nw3.sync.entity")
-            net.WriteUInt(self:EntIndex(), 13)
-            net.WriteString(k)
-            net.WriteString(ID)
-            net["Write" .. k](Var)
-            net.WriteString("-")
-            net.Broadcast()
+            nw3AddToEntityQueue(self:EntIndex(), k, ID, Var)
         end
     end
 
-    --Global Exceptions
-    function nw3.SetGlobalFloat(ID, Var)
-        if not isnumber(Var) then error(string.format("Attempted to set a(n) %s with the float function!", type(Var))) return end
-        if ID == "-" then error("Attempted to set the ID with an internally reserved name!") return end
-        if nw3.Variables.Float[ID] == Var then return end
-
-        nw3.Variables.Float[ID] = Var
-        net.Start("nw3.sync")
-        net.WriteString("Float")
-        net.WriteString(ID)
-        net.WriteFloat(Var)
-        net.WriteString("-")
-        net.Broadcast()
-    end
-
+    --Exceptions
     function nw3.SetGlobalInt(ID, Var)
         if not isnumber(Var) then error(string.format("Attempted to set a(n) %s with the interger function!", type(Var))) return end
         if ID == "-" then error("Attempted to set the ID with an internally reserved name!") return end
 
-        local Var = math.floor(Var)
-        if nw3.Variables.Int[ID] == Var then return end
-
-        nw3.Variables.Int[ID] = Var
-        net.Start("nw3.sync")
-        net.WriteString("Int")
-        net.WriteString(ID)
-        net.WriteInt(Var, 32)
-        net.WriteString("-")
-        net.Broadcast()
-    end
-
-    --Entity Exceptions
-    function ENTITY:nw3SetFloat(ID, Var)
-        if not isnumber(Var) then error(string.format("Attempted to set a(n) %s with the float function!", type(Var))) return end
-        if ID == "-" then error("Attempted to set the ID with an internally reserved name!") return end
-
-        nw3.Entities[self:EntIndex()] = nw3.Entities[self:EntIndex()] or {}
-        nw3.Entities[self:EntIndex()].Float = nw3.Entities[self:EntIndex()].Float or {}
-        if nw3.Entities[self:EntIndex()].Float[ID] == Var then return end
-        nw3.Entities[self:EntIndex()].Float[ID] = Var
-
-        net.Start("nw3.sync.entity")
-        net.WriteUInt(self:EntIndex(), 13)
-        net.WriteString("Float")
-        net.WriteString(ID)
-        net.WriteFloat(Var)
-        net.WriteString("-")
-        net.Broadcast()
+        nw3AddToGlobalQueue("Int", ID, math.floor(Var))
     end
 
     function ENTITY:nw3SetInt(ID, Var)
         if not isnumber(Var) then error(string.format("Attempted to set a(n) %s with the interger function!", type(Var))) return end
         if ID == "-" then error("Attempted to set the ID with an internally reserved name!") return end
 
-        local Var = math.floor(Var)
-
-        nw3.Entities[self:EntIndex()] = nw3.Entities[self:EntIndex()] or {}
-        nw3.Entities[self:EntIndex()].Int = nw3.Entities[self:EntIndex()].Int or {}
-        if nw3.Entities[self:EntIndex()].Int[ID] == Var then return end
-        nw3.Entities[self:EntIndex()].Int[ID] = Var
-
-        net.Start("nw3.sync.entity")
-        net.WriteUInt(self:EntIndex(), 13)
-        net.WriteString("Int")
-        net.WriteString(ID)
-        net.WriteInt(Var, 32)
-        net.WriteString("-")
-        net.Broadcast()
+        nw3AddToEntityQueue(self:EntIndex(), "Int", ID, math.floor(Var))
     end
 end
 
