@@ -1,5 +1,4 @@
 local PANEL = {}
-require("nw3")
 
 surface.CreateFont("Micro_Scoreboard_16",{
 	font = "Better VCR",
@@ -8,18 +7,53 @@ surface.CreateFont("Micro_Scoreboard_16",{
 })
 
 local clock = Material("icons8/16/clock.png")
-clock:SetVector("$color", vector_origin)
 local badge = Material("icons8/16/badge.png")
-badge:SetVector("$color", vector_origin)
 local broom = Material("icons8/16/clean.png")
+clock:SetVector("$color", vector_origin)
+badge:SetVector("$color", vector_origin)
 broom:SetVector("$color", vector_origin)
 
 local GradientUp = Material("vgui/gradient-r")
+local PlayerVolumeColor = Color(159, 189, 255)
 
 local RankImage = {
 	["superadmin"] = {Icon = badge, NiceName = "Super Admin"},
 	["admin"] = {Icon = broom, NiceName = "Admin"}
 }
+
+local function CreateMenuPanel(ply)
+	Menu = DermaMenu(false, self)
+	Menu:AddOption("Copy Player SteamID", function() SetClipboardText(ply:SteamID()) end):SetIcon("icon16/user.png")
+	Menu:AddOption("Copy Player SteamID64", function() SetClipboardText(ply:SteamID64()) end):SetIcon("icon16/user_suit.png")
+	Menu:AddOption("Copy Player AccountID", function() SetClipboardText(ply:AccountID()) end):SetIcon("icon16/user_red.png")
+	Menu:AddOption("Copy PlayerModel", function() SetClipboardText(ply:GetModel()) end):SetIcon("icon16/report_user.png")
+	if ctrl  and LocalPlayer() ~= ply then
+		local target = ply:Name()
+
+		Menu:AddOption("Go to player", function() ctrl.CallCommand(LocalPlayer(), "goto", {target}, target) end):SetIcon("icon16/flag_green.png")
+		if LocalPlayer():IsAdmin() then
+			Menu:AddOption("Bring player to yourself", function() ctrl.CallCommand(LocalPlayer(), "bring", {target}, target) end):SetIcon("icon16/flag_yellow.png")
+			Menu:AddOption("Kick player", function() ctrl.CallCommand(LocalPlayer(), "kick", {target}, target) end):SetIcon("icon16/flag_red.png")
+		end
+	end
+	Menu:AddSpacer()
+	local MicVolume = Menu:Add("DSlider")
+	MicVolume:SetTall(22)
+	MicVolume:SetSlideX(ply:GetVoiceVolumeScale())
+	MicVolume.Knob.Paint = function() end
+	MicVolume.OnValueChanged = function(self, x, y)
+		ply:SetVoiceVolumeScale(x)
+	end
+	MicVolume.Paint = function(self, w, h)
+		surface.SetDrawColor(PlayerVolumeColor)
+		surface.DrawRect(2, 2, w * self:GetSlideX() - 4, h - 4)
+		draw.SimpleText("Player Voice Volume", "DermaDefault", w / 2, h / 2, color_black, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+	end
+	Menu:AddPanel(MicVolume)
+	Menu:Open()
+
+	return Menu
+end
 
 function PANEL:Init()
 	self:SetTall(20)
@@ -49,21 +83,7 @@ function PANEL:DoClick()
 end
 
 function PANEL:DoRightClick()
-	MICRO_SCORE.Menu = DermaMenu(false, self)
-	MICRO_SCORE.Menu:AddOption("Copy Player SteamID", function() SetClipboardText(self.ply:SteamID()) end):SetIcon("icon16/user.png")
-	MICRO_SCORE.Menu:AddOption("Copy Player SteamID64", function() SetClipboardText(self.ply:SteamID64()) end):SetIcon("icon16/user_suit.png")
-	MICRO_SCORE.Menu:AddOption("Copy Player AccountID", function() SetClipboardText(self.ply:AccountID()) end):SetIcon("icon16/user_red.png")
-	MICRO_SCORE.Menu:AddOption("Copy PlayerModel", function() SetClipboardText(self.ply:GetModel()) end):SetIcon("icon16/report_user.png")
-	if ctrl  and LocalPlayer() ~= self.ply then
-		local target = self.ply:Name()
-
-		MICRO_SCORE.Menu:AddOption("Go to player", function() ctrl.CallCommand(LocalPlayer(), "goto", {target}, target) end):SetIcon("icon16/flag_green.png")
-		if LocalPlayer():IsAdmin() then
-			MICRO_SCORE.Menu:AddOption("Bring player to yourself", function() ctrl.CallCommand(LocalPlayer(), "bring", {target}, target) end):SetIcon("icon16/flag_yellow.png")
-			MICRO_SCORE.Menu:AddOption("Kick player", function() ctrl.CallCommand(LocalPlayer(), "kick", {target}, target) end):SetIcon("icon16/flag_red.png")
-		end
-	end
-	MICRO_SCORE.Menu:Open()
+	MICRO_SCORE.Menu = CreateMenuPanel(self.ply)
 end
 
 function PANEL:SetPlayer(ply)
@@ -73,21 +93,7 @@ function PANEL:SetPlayer(ply)
 	self.Avatar:SetPlayer(ply, 64)
 
 	self.Profile.DoRightClick = function()
-		MICRO_SCORE.Menu = DermaMenu(false, self)
-		MICRO_SCORE.Menu:AddOption("Copy Player SteamID", function() SetClipboardText(self.ply:SteamID()) end):SetIcon("icon16/user.png")
-		MICRO_SCORE.Menu:AddOption("Copy Player SteamID64", function() SetClipboardText(self.ply:SteamID64()) end):SetIcon("icon16/user_suit.png")
-		MICRO_SCORE.Menu:AddOption("Copy Player AccountID", function() SetClipboardText(self.ply:AccountID()) end):SetIcon("icon16/user_red.png")
-		MICRO_SCORE.Menu:AddOption("Copy PlayerModel", function() SetClipboardText(self.ply:GetModel()) end):SetIcon("icon16/report_user.png")
-		if ctrl  and LocalPlayer() ~= self.ply then
-			local target = self.ply:Name()
-
-			MICRO_SCORE.Menu:AddOption("Go to player", function() ctrl.CallCommand(LocalPlayer(), "goto", {target}, target) end):SetIcon("icon16/flag_green.png")
-			if LocalPlayer():IsAdmin() then
-				MICRO_SCORE.Menu:AddOption("Bring player to yourself", function() ctrl.CallCommand(LocalPlayer(), "bring", {target}, target) end):SetIcon("icon16/flag_yellow.png")
-				MICRO_SCORE.Menu:AddOption("Kick player", function() ctrl.CallCommand(LocalPlayer(), "kick", {target}, target) end):SetIcon("icon16/flag_red.png")
-			end
-		end
-		MICRO_SCORE.Menu:Open()
+		MICRO_SCORE.Menu = CreateMenuPanel(ply)
 	end
 	self.GradientColor = GAMEMODE:GetTeamColor(ply)
 	self.GradientColor.a = 100
@@ -132,7 +138,6 @@ function PANEL:Paint(w, h)
 	end
 
 	local ply = self.ply
-	local color
 	--Background Color
 	for k ,v in pairs(self:GetChildren()) do
 		local hover = v:IsHovered()

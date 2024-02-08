@@ -11,6 +11,10 @@ MICRO_SCORE = {
 	Player_Timeout_BGColor_Hovered = Color(207, 160, 160),
 	Player_PingColor = Color(80, 0, 0)
 }
+--Include libraries once
+require("nw3")
+require("finishedloading")
+if SERVER then require("cpu_info") end --Source: https://github.com/TheFUlDeep/gmod_cpu_info
 
 
 local function LoadFolder(path, realm)

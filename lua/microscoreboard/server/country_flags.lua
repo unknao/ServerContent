@@ -1,5 +1,4 @@
 local tag = "Micro_Scoreboard_Flags"
-require("nw3")
 
 hook.Add("PlayerInitialSpawn", tag, function(ply)
 	if ply:IsBot() then return end

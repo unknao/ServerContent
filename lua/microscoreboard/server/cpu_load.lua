@@ -1,5 +1,3 @@
-require("cpu_info") --Utilizing binary module from https://github.com/TheFUlDeep/gmod_cpu_info
-
 local tag = "cpu_load"
 local Threads = GetProcessorsCount()
 

@@ -1,5 +1,5 @@
 PANEL = {}
-require("nw3")
+
 function PANEL:Init()
     self:SetTall(40)
     self:SetText("")
