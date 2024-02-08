@@ -23,17 +23,17 @@ local RankImage = {
 
 local function CreateMenuPanel(ply)
 	Menu = DermaMenu(false, self)
-	Menu:AddOption("Copy Player SteamID", function() SetClipboardText(ply:SteamID()) end):SetIcon("icon16/user.png")
-	Menu:AddOption("Copy Player SteamID64", function() SetClipboardText(ply:SteamID64()) end):SetIcon("icon16/user_suit.png")
-	Menu:AddOption("Copy Player AccountID", function() SetClipboardText(ply:AccountID()) end):SetIcon("icon16/user_red.png")
-	Menu:AddOption("Copy PlayerModel", function() SetClipboardText(ply:GetModel()) end):SetIcon("icon16/report_user.png")
+	Menu:AddOption("Copy Player SteamID", function() SetClipboardText(ply:SteamID()) end):SetIcon("icon16/page_edit.png")
+	Menu:AddOption("Copy Player SteamID64", function() SetClipboardText(ply:SteamID64()) end):SetIcon("icon16/script_edit.png")
+	Menu:AddOption("Copy Player AccountID", function() SetClipboardText(ply:AccountID()) end):SetIcon("icon16/page_red.png")
+	Menu:AddOption("Copy PlayerModel", function() SetClipboardText(ply:GetModel()) end):SetIcon("icon16/image_edit.png")
 	if ctrl  and LocalPlayer() ~= ply then
 		local target = ply:Name()
 
-		Menu:AddOption("Go to player", function() ctrl.CallCommand(LocalPlayer(), "goto", {target}, target) end):SetIcon("icon16/flag_green.png")
+		Menu:AddOption("Go to player", function() ctrl.CallCommand(LocalPlayer(), "goto", {target}, target) end):SetIcon("icon16/group.png")
 		if LocalPlayer():IsAdmin() then
-			Menu:AddOption("Bring player to yourself", function() ctrl.CallCommand(LocalPlayer(), "bring", {target}, target) end):SetIcon("icon16/flag_yellow.png")
-			Menu:AddOption("Kick player", function() ctrl.CallCommand(LocalPlayer(), "kick", {target}, target) end):SetIcon("icon16/flag_red.png")
+			Menu:AddOption("Bring player to yourself", function() ctrl.CallCommand(LocalPlayer(), "bring", {target}, target) end):SetIcon("icon16/group_delete.png")
+			Menu:AddOption("Kick player", function() ctrl.CallCommand(LocalPlayer(), "kick", {target}, target) end):SetIcon("icon16/cancel.png")
 		end
 	end
 	Menu:AddSpacer()
