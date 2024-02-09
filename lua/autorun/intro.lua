@@ -139,18 +139,18 @@ hook.Add("DrawOverlay", tag, function()
 
 	surface.SetMaterial(glow)
 	surface.SetDrawColor(235, 117, 77, 170 * Alpha)
-	surface.DrawTexturedRectRotated(ScrW() / 2, ScrH() / 2, 750, 750, RealTime() * 40)
+	surface.DrawTexturedRectRotated(ScrW() / 2, ScrH() / 2, 750, 750, SysTime() * 40)
 
 	surface.SetMaterial(pc)
 	surface.SetDrawColor(255, 124, 77, 255 * Alpha)
 	surface.DrawTexturedRectRotated(ScrW() / 2 + math.random(-2, 2), ScrH() / 2 + math.random(-2, 2), 128, 128, math.random(-1, 1))
 
 	--Fire
-	if firetick < RealTime() then --Timers don't cut it for this use case.
+	if firetick < SysTime() then --Timers don't cut it for this use case.
 		for i = 1, 20 do
 			firecoord.x[i], firecoord.y[i], firecoord.rot[i] = math.random(-65, 65), math.random(-20, 20), math.random(-10, 10)
 		end
-		firetick = RealTime() + 0.2
+		firetick = SysTime() + 0.2
 	end
 
 	for i = 1, 20 do
@@ -167,16 +167,16 @@ hook.Add("DrawOverlay", tag, function()
 	surface.SetDrawColor(200, 200, 200, 255 * Alpha)
 	surface.SetMaterial(dots)
 	for i = 0, 2 do
-		surface.DrawTexturedRect(ScrW() / 2 - 146 + 130 * i, ScrH() / 2 + 140 - math.max(math.sin(RealTime() * 5 + i * 20), 0) * 30, 32, 32)
+		surface.DrawTexturedRect(ScrW() / 2 - 146 + 130 * i, ScrH() / 2 + 140 - math.max(math.sin(SysTime() * 5 + i * 20), 0) * 30, 32, 32)
 	end
 
 	--People surrounding
 	surface.SetMaterial(people)
 	for i = 0, 14 do
-		local wave = 300 + math.sin(math.rad(RealTime() * 360 + i * 24)) * 9
-		local x, y = ScrW() / 2 + math.sin(math.rad(RealTime() * 15 + i * 24)) * wave, ScrH() / 2 + math.cos(math.rad(RealTime() * 15 + i * 24)) * wave
+		local wave = 300 + math.sin(math.rad(SysTime() * 360 + i * 24)) * 9
+		local x, y = ScrW() / 2 + math.sin(math.rad(SysTime() * 15 + i * 24)) * wave, ScrH() / 2 + math.cos(math.rad(SysTime() * 15 + i * 24)) * wave
 
-		surface.DrawTexturedRectRotated(x, y, 32, 32, RealTime() * 15 + i * 24 + 180)
+		surface.DrawTexturedRectRotated(x, y, 32, 32, SysTime() * 15 + i * 24 + 180)
 	end
 
 	--Loading text
