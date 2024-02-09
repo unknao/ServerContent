@@ -4,33 +4,33 @@ function PANEL:Init()
     self:SetTall(40)
     self:SetText("")
     self:DockMargin(0, 0, 0, 3)
-    self.Name = ""
-    self.NiceName = ""
-    self.Max = 0
+    self.Value = ""
+    self.Info1 = ""
+    self.Info2 = 0
 end
 
-function PANEL:SetupInfo(Name, NiceName, Max)
-    self.Name = Name
-    self.NiceName = NiceName
-    if isnumber(Max) then
-        self.Max = " / " .. Max
+function PANEL:SetupInfo(Value, Info1, Info2)
+    self.Value = Value
+    self.Info1 = Info1
+    if isnumber(Info2) then
+        self.Info2 = " / " .. Info2
     else
-        self.Max = Max or ""
+        self.Info2 = Info2 or ""
     end
 end
 
 function PANEL:Paint(w, h)
     surface.SetDrawColor(self:IsHovered() and MICRO_SCORE.Player_BGColor_Hovered or MICRO_SCORE.Player_BGColor)
     surface.DrawRect(0, 0, w, 20)
-    draw.SimpleText(self.NiceName, "Micro_Scoreboard_16", w / 2, 10, color_black, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+    draw.SimpleText(self.Info1, "Micro_Scoreboard_16", w / 2, 10, color_black, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 
     surface.SetDrawColor(MICRO_SCORE.Frame_Color)
     surface.DrawRect(0, 20, w, h - 20)
-    if isfunction(self.Name) then
-        draw.SimpleText(self.Name() .. self.Max, "Micro_Scoreboard_16", w / 2, 30, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+    if isfunction(self.Value) then
+        draw.SimpleText(self.Value() .. self.Info2, "Micro_Scoreboard_16", w / 2, 30, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     else
-        draw.SimpleText(nw3.GetGlobalInt(self.Name) .. self.Max, "Micro_Scoreboard_16", w / 2, 30, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.SimpleText(nw3.GetGlobalInt(self.Value) .. self.Info2, "Micro_Scoreboard_16", w / 2, 30, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
 end
 
-vgui.Register("DInfoPanel", PANEL, "DButton")
+vgui.Register("MS_InfoPanel", PANEL, "DButton")

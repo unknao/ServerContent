@@ -1,14 +1,14 @@
 local function CreateScoreboard()
     if IsValid(MICRO_SCORE.Scoreboard) then MICRO_SCORE.Scoreboard:Remove() end
 
-    MICRO_SCORE.Scoreboard = vgui.Create("DScoreboardFrame")
+    MICRO_SCORE.Scoreboard = vgui.Create("MS_ScoreboardFrame")
     MICRO_SCORE.Scoreboard:SetVisible(false)
 end
 
 local function CreateInfoPanel()
     if IsValid(MICRO_SCORE.InfoPanel) then MICRO_SCORE.InfoPanel:Remove() end
 
-    MICRO_SCORE.InfoPanel = vgui.Create("DServerInfo")
+    MICRO_SCORE.InfoPanel = vgui.Create("MS_ServerInfo")
     MICRO_SCORE.InfoPanel:SetVisible(false)
 end
 

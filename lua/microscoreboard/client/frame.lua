@@ -43,7 +43,7 @@ function PANEL:Init()
     end
 
     for i, v in ipairs(player.GetAll()) do
-        MICRO_SCORE.PlayerPanels[i] = MICRO_SCORE.ScrollPanel:Add("DPlayerInfo")
+        MICRO_SCORE.PlayerPanels[i] = MICRO_SCORE.ScrollPanel:Add("MS_PlayerInfo")
         MICRO_SCORE.PlayerPanels[i]:Dock(TOP)
         MICRO_SCORE.PlayerPanels[i]:SetPlayer(v)
     end
@@ -96,10 +96,10 @@ hook.Add("OnEntityCreated", "Micro_Scoreboard_PlayerJoin", function(ply)
     if not MICRO_SCORE.PlayerPanels then return end
 
     local id = ply:UserID()
-    MICRO_SCORE.PlayerPanels[id] = MICRO_SCORE.ScrollPanel:Add("DPlayerInfo")
+    MICRO_SCORE.PlayerPanels[id] = MICRO_SCORE.ScrollPanel:Add("MS_PlayerInfo")
     MICRO_SCORE.PlayerPanels[id]:Dock(TOP)
     MICRO_SCORE.PlayerPanels[id]:SetPlayer(ply)
     MICRO_SCORE.Scoreboard:UpdateSize(player.GetCount())
 end)
 
-vgui.Register("DScoreboardFrame", PANEL, "DFrame")
+vgui.Register("MS_ScoreboardFrame", PANEL, "DFrame")

@@ -22,18 +22,28 @@ local RankImage = {
 }
 
 local function CreateMenuPanel(ply)
-	Menu = DermaMenu(false, self)
-	Menu:AddOption("Copy Player SteamID", function() SetClipboardText(ply:SteamID()) end):SetIcon("icon16/page_edit.png")
-	Menu:AddOption("Copy Player SteamID64", function() SetClipboardText(ply:SteamID64()) end):SetIcon("icon16/script_edit.png")
-	Menu:AddOption("Copy Player AccountID", function() SetClipboardText(ply:AccountID()) end):SetIcon("icon16/page_red.png")
-	Menu:AddOption("Copy PlayerModel", function() SetClipboardText(ply:GetModel()) end):SetIcon("icon16/image_edit.png")
-	if ctrl  and LocalPlayer() ~= ply then
+	Menu = DermaMenu(false)
+	Menu:AddOption("Copy Name", function() SetClipboardText(ply:Name()) end):SetIcon("icon16/image_edit.png")
+	Menu:AddOption("Copy Profile URL", function() SetClipboardText("http://steamcommunity.com/profiles/" .. ply:SteamID64()) end):SetIcon("icon16/image_edit.png")
+	Menu:AddOption("Copy Model", function() SetClipboardText(ply:GetModel()) end):SetIcon("icon16/image_edit.png")
+	Menu:AddSpacer()
+
+	Menu:AddOption("Copy SteamID", function() SetClipboardText(ply:SteamID()) end):SetIcon("icon16/page_edit.png")
+	Menu:AddOption("Copy SteamID64", function() SetClipboardText(ply:SteamID64()) end):SetIcon("icon16/script_edit.png")
+	Menu:AddOption("Copy AccountID", function() SetClipboardText(ply:AccountID()) end):SetIcon("icon16/page_red.png")
+	if ctrl and LocalPlayer() ~= ply then
+		Menu:AddSpacer()
 		local target = ply:Name()
 
-		Menu:AddOption("Go to player", function() ctrl.CallCommand(LocalPlayer(), "goto", {target}, target) end):SetIcon("icon16/group.png")
+
 		if LocalPlayer():IsAdmin() then
-			Menu:AddOption("Bring player to yourself", function() ctrl.CallCommand(LocalPlayer(), "bring", {target}, target) end):SetIcon("icon16/group_delete.png")
-			Menu:AddOption("Kick player", function() ctrl.CallCommand(LocalPlayer(), "kick", {target}, target) end):SetIcon("icon16/cancel.png")
+			local SubMenu, ParentMenu = Menu:AddSubMenu("Go To", function() ctrl.CallCommand(LocalPlayer(), "goto", {target}, target) end)
+			ParentMenu:SetIcon("icon16/arrow_out.png")
+			SubMenu:AddOption("Bring", function() ctrl.CallCommand(LocalPlayer(), "bring", {target}, target) end):SetIcon("icon16/arrow_in.png")
+
+			Menu:AddOption("Kick", function() ctrl.CallCommand(LocalPlayer(), "kick", {target}, target) end):SetIcon("icon16/cancel.png")
+		else
+			Menu:AddOption("Go To", function() ctrl.CallCommand(LocalPlayer(), "goto", {target}, target) end):SetIcon("icon16/group.png")
 		end
 	end
 	Menu:AddSpacer()
@@ -47,7 +57,7 @@ local function CreateMenuPanel(ply)
 	MicVolume.Paint = function(self, w, h)
 		surface.SetDrawColor(PlayerVolumeColor)
 		surface.DrawRect(2, 2, w * self:GetSlideX() - 4, h - 4)
-		draw.SimpleText("Player Voice Volume", "DermaDefault", w / 2, h / 2, color_black, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+		draw.SimpleText("Voice Volume", "DermaDefault", w / 2, h / 2, color_black, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 	end
 	Menu:AddPanel(MicVolume)
 	Menu:Open()
@@ -145,7 +155,8 @@ function PANEL:Paint(w, h)
 		if hover then break end
 	end
 
-	if not ply:IsBot() then local timeout = ply:nw3GetBool("IsTimingOut") end
+	local timeout
+	if not ply:IsBot() then timeout = ply:nw3GetBool("IsTimingOut") end
 	self.Hovered = self:IsHovered() or self:IsChildHovered()
 	surface.SetDrawColor(timeout and MICRO_SCORE.Player_Timeout_BGColor or MICRO_SCORE.Player_BGColor)
 	surface.DrawRect(0, 0, w, h)
@@ -180,4 +191,4 @@ function PANEL:Paint(w, h)
 	surface.DrawTexturedRect(w - 78, 2, 16, 16)
 end
 
-vgui.Register("DPlayerInfo", PANEL, "DButton")
+vgui.Register("MS_PlayerInfo", PANEL, "DButton")

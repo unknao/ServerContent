@@ -1,17 +1,16 @@
 PANEL = {}
-require("slowthink")
 
-local fTickMax = 1 / engine.TickInterval()
-hook.Add("SlowThink", "MicroScore_Tickrate", function() MICRO_SCORE.tickrate = math.floor(math.min(1 / engine.ServerFrameTime(), fTickMax)) end)
+local fTickInfo2 = 1 / engine.TickInterval()
+timer.Create("MS_ServerInfo_Tickrate", 0.1, 0, function() MICRO_SCORE.tickrate = math.floor(math.min(1 / engine.ServerFrameTime(), fTickInfo2)) end)
 
 local TrackedValues = {
-    {Name = "edicts", NiceName = "Edicts", Max = 8096},
-    {Name = "modelprecache", NiceName = "Model Precache", Max = 8096},
-    {Name = "soundprecache", NiceName = "Sound Precache", Max = 16384},
-    {Name = function() return GetGlobal2Int("cpu_load") end, NiceName = "CPU Usage", Max = "%"},
-    {Name = function() return MICRO_SCORE.tickrate end, NiceName = "Tickrate"},
-    {Name = function() return math.Round(collectgarbage("count") / 1024, 1) end, NiceName = "Garbage", Max = " MB"},
-    {Name = function() return math.floor(1 / FrameTime()) end, NiceName = "Framerate"},
+    {Value = "edicts", Info1 = "Edicts", Info2 = 8096},
+    {Value = "modelprecache", Info1 = "Model Precache", Info2 = 8096},
+    {Value = "soundprecache", Info1 = "Sound Precache", Info2 = 16384},
+    {Value = function() return GetGlobal2Int("cpu_load") end, Info1 = "CPU Usage", Info2 = "%"},
+    {Value = function() return MICRO_SCORE.tickrate end, Info1 = "Tickrate"},
+    {Value = function() return math.Round(collectgarbage("count") / 1024, 1) end, Info1 = "Garbage", Info2 = " MB"},
+    {Value = function() return math.floor(1 / FrameTime()) end, Info1 = "Framerate"},
 }
 
 function PANEL:Init()
@@ -24,9 +23,9 @@ function PANEL:Init()
     self:SetSizable(false)
     self.IsOpen = false
     for i, v in ipairs(TrackedValues) do
-        local infopanel = self:Add("DInfoPanel")
+        local infopanel = self:Add("MS_InfoPanel")
         infopanel:Dock(TOP)
-        infopanel:SetupInfo(v.Name, v.NiceName, v.Max)
+        infopanel:SetupInfo(v.Value, v.Info1, v.Info2)
     end
 end
 
@@ -45,4 +44,4 @@ end
 
 function PANEL:Paint() end
 
-vgui.Register("DServerInfo", PANEL, "DFrame")
+vgui.Register("MS_ServerInfo", PANEL, "DFrame")
