@@ -14,7 +14,6 @@ MICRO_SCORE = {
 --Include libraries once
 require("nw3")
 require("finishedloading")
-require("svg")
 if SERVER then require("cpu_info") end --Source: https://github.com/TheFUlDeep/gmod_cpu_info
 
 
@@ -32,11 +31,14 @@ local function LoadFolder(path, realm)
 	end
 end
 
-for k, v in pairs(MICRO_SCORE.paths) do
-	LoadFolder(v, k)
-end
+hook.Add("OnGamemodeLoaded", "MicroScore_Load", function()
+	require("svg")
+	for k, v in pairs(MICRO_SCORE.paths) do
+		LoadFolder(v, k)
+	end
 
-AddCSLuaFile("microscoreboard/scoreboard.lua")
-if SERVER then return end
+	AddCSLuaFile("microscoreboard/scoreboard.lua")
+	if SERVER then return end
 
-include("microscoreboard/scoreboard.lua")
+	include("microscoreboard/scoreboard.lua")
+end)
