@@ -213,9 +213,9 @@ do
 			mat = SetupMaterial( id, MaterialName( mat ), w, h )
 
 			if IsColor( r ) then
-				SetDrawColor( r.r, r.g, r.b, r.a )
+				SetDrawColor(r)
 			elseif r then
-				SetDrawColor( r, g, b, a )
+				SetDrawColor(r, g, b, a)
 			end
 
 		end
