@@ -1,4 +1,6 @@
 --Source: https://github.com/noaccessl/glua-SVG
+AddCSLuaFile()
+if SERVER then return end
 
 --[[---------------------------------------------------------------------------
 	Predefines

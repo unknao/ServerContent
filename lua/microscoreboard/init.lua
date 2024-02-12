@@ -14,6 +14,7 @@ MICRO_SCORE = {
 --Include libraries once
 require("nw3")
 require("finishedloading")
+require("svg")
 if SERVER then require("cpu_info") end --Source: https://github.com/TheFUlDeep/gmod_cpu_info
 
 
