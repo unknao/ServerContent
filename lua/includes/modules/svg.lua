@@ -28,7 +28,6 @@ local SVGTemplate = [[
 </html>
 ]]
 
-
 function svg.ClearCache()
 
 	for id, handle in pairs( svg.cache ) do
