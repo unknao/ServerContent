@@ -9,6 +9,5 @@ hook.Add("EntityEmitSound", tag, function(data)
     if not  tOverride[data.SoundName] then return end
 
     data.SoundName = tOverride[data.SoundName]
-    print("smg1")
     return true
 end)
