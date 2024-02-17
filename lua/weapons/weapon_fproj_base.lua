@@ -11,7 +11,7 @@ SWEP.SlotPos = 2
 
 SWEP.ViewModel = Model( "models/weapons/cstrike/c_rif_sg552.mdl" )
 SWEP.WorldModel = Model( "models/weapons/w_rif_sg552.mdl" )
-SWEP.ViewModelFOV = 60
+SWEP.ViewModelFOV = 57
 SWEP.Spawnable = true
 
 SWEP.SwayScale = -2
@@ -75,8 +75,7 @@ function SWEP:CreateProjectile(ID, tbl)
 		Pos = tbl.Pos or owner:EyePos(),
 		Vel = tbl.Vel or (normal:Forward() + VecRandom) * 15000 * engine.TickInterval(),
 		Gravity = tbl.Gravity or physenv.GetGravity() * 0.01 * engine.TickInterval(),
-		Drag = (1 - tbl.Drag) or 0.999,
-
+		Drag = tbl.Drag or 0.999,
 		Dmg = tbl.Dmg or DamageInfo(),
 		ForceMul = tbl.ForceMul or 40,
 		Effect = tbl.Effect or "fproj_basebullet",
@@ -87,7 +86,6 @@ function SWEP:CreateProjectile(ID, tbl)
 
 	ef:SetEntity(self)
 	util.Effect(tData.Effect, ef, true, true)
-	return tData.Vel
 end
 
 function SWEP:PrimaryAttack()
@@ -110,6 +108,7 @@ function SWEP:PrimaryAttack()
 	dmg:SetDamage(20)
 	dmg:SetAttacker(owner)
 	dmg:SetInflictor(self)
+	dmg:SetDamageType(DMG_BULLET)
 	self:CreateProjectile("TestProjectile",{
 		Dmg = dmg
 	})
@@ -137,7 +136,7 @@ hook.Add("Tick", "base_fproj_timestep", function()
 			continue
 		end
 		for kk,  Proj in ipairs(v) do
-			if not isValid(k) then
+			if not IsValid(k) then
 				fproj.ProjectileTable[k] = nil
 				break
 			end
@@ -152,15 +151,14 @@ hook.Add("Tick", "base_fproj_timestep", function()
 					Proj.Dmg:SetDamagePosition(tr.HitPos)
 					Proj.Dmg:ScaleDamage(HitGroup_DmgScale[tr.HitGroup])
 					Proj.Dmg:SetDamageForce(tr.Normal * Proj.ForceMul)
-					Proj.Dmg:SetDamageType(DMG_BULLET)
 					local phys = tr.Entity:GetPhysicsObject()
 					if phys then
 						phys:ApplyForceOffset(tr.Normal * Proj.ForceMul * Proj.Dmg:GetDamage() + Proj.Vel, tr.HitPos)
 					elseif tr.Entity:IsPlayer() or tr.Entity:IsNPC() then
 						tr.Entity:SetVelocity(tr.Normal * Proj.ForceMul * Proj.Dmg:GetDamage() * 1000 + Proj.Vel)
 					end
+					k:DoImpactEffect(tr, Proj.Dmg:GetDamageType(), false, true)
 					tr.Entity:TakeDamageInfo(Proj.Dmg)
-					k:DoImpactEffect(tr, DMG_BULLET, false, true)
 				end
 				Proj.Vel = nil
 				table.remove(fproj.ProjectileTable[k], kk)
