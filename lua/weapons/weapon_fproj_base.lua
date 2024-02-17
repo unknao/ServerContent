@@ -28,7 +28,6 @@ SWEP.Secondary.DefaultClip = -1
 SWEP.Secondary.Automatic   = false
 SWEP.Secondary.Ammo        = "none"
 
-
 SWEP.DrawAmmo = true
 SWEP.AdminOnly = false
 
@@ -39,7 +38,7 @@ end
 local HitGroup_DmgScale = {
 	[0] = 1,
 	[1] = 3,
-	[2] = 0.9,
+	[2] = 1,
 	[3] = 1,
 	[4] = 0.6,
 	[5] = 0.6,
@@ -48,69 +47,118 @@ local HitGroup_DmgScale = {
 	[10] = 0.01,
 }
 fproj = fproj or {
-	ProjectileTable = {}
+	PTbl = {}, --Active projectiles
+	RTbl = {}, -- Registered projectile classes
 }
+--Registered weapon projectiles
 
 function SWEP:Initialize()
 	self:SetHoldType("ar2")
+	self:RegisterProjectile("fproj_baseprimary", {})
 end
+
+local function CalculateDamageFalloff(Dist, MinDist, MaxDist, LowestPercent)
+	local sollution = math.Clamp(MinDist + MaxDist - Dist, MinDist, MaxDist)
+	sollution = math.Remap(sollution, MinDist, MaxDist, LowestPercent, 1)
+	return sollution
+end
+
+function SWEP:RegisterProjectile(ID, Data, bOverride)
+	if not bOverride and fproj.RTbl[ID] then return end
+	if fproj.RTbl[ID] then print(string.format("Warning! '%s' fake projectile class was overwritten!", ID)) end
+
+	local tbl = {
+		Gravity = Data.Gravity or physenv.GetGravity() * 0.0105 * engine.TickInterval(),
+		Drag = Data.Drag or 0.999, -- How much speed the projectile loses in flight at 1 - Drag value
+		ForceMul = Data.ForceMul or 40,
+		Effect = Data.Effect or "fproj_baseprimary",
+		MinFalloffDist = Data.MinFalloffDist or 600, --Range at which the bullet begins damage falloff
+		MaxFalloffDist = Data.MaxFalloffDist or 900, --Range at which the bullet is at max damage falloff
+		FalloffPercent = Data.FalloffPercent or 0.3, --How low the damage falloff can get between 0 and 1
+	}
+	tbl.MinFalloffDist = tbl.MinFalloffDist ^ 2
+	tbl.MaxFalloffDist = tbl.MaxFalloffDist ^ 2
+
+	tbl.OnImpact = Data.OnImpact or function(Wep, Ply, tr, ProjData)
+		local Dmg = DamageInfo()
+		Dmg:SetAttacker(Ply)
+		Dmg:SetInflictor(Wep)
+		local FalloffMul = 1
+		if tbl.MinFalloffDist > 0 or tbl.MaxFalloffDist > 0 then
+			FalloffMul = CalculateDamageFalloff(ProjData.DistTravelledSqr, tbl.MinFalloffDist, tbl.MaxFalloffDist, tbl.FalloffPercent)
+		end
+		local ForceMul = tbl.ForceMul * FalloffMul
+
+		Dmg:SetDamage(20 * FalloffMul)
+		Dmg:ScaleDamage(HitGroup_DmgScale[tr.HitGroup])
+
+		Dmg:SetReportedPosition(tr.HitPos)
+		Dmg:SetDamagePosition(tr.HitPos)
+		Dmg:SetDamageForce(tr.Normal * tbl.ForceMul)
+
+		Dmg:SetDamageType(DMG_BULLET)
+
+		local phys = tr.Entity:GetPhysicsObject()
+		if phys and SERVER then
+			phys:ApplyForceOffset(tr.Normal * ForceMul * Dmg:GetDamage() + ProjData.Vel, tr.HitPos)
+		elseif tr.Entity:IsPlayer() or tr.Entity:IsNPC() then
+			tr.Entity:SetVelocity(tr.Normal * ForceMul * Dmg:GetDamage() * 1000 + ProjData.Vel)
+		end
+
+		Wep:DoImpactEffect(tr, DMG_BULLET)
+
+		tr.Entity:DispatchTraceAttack(Dmg, tr)
+	end
+
+	fproj.RTbl[ID] = tbl
+end
+
 
 function SWEP:Deploy()
 	self:SendWeaponAnim(ACT_VM_DRAW)
 	self:SetNextPrimaryFire(CurTime() + 1)
 end
 
-function SWEP:RecoilCompensatedDir()
+function SWEP:GetRecoilCompensatedNormal()
 	local owner = self:GetOwner()
 	local normal = owner:EyeAngles()
 	normal:RotateAroundAxis(owner:EyeAngles():Right(), -owner:GetViewPunchAngles()[1])
 	return normal
 end
 
-function SWEP:CreateProjectile(ID, tbl)
-	local owner = self:GetOwner()
-	local normal = self:RecoilCompensatedDir()
-	local VecRandom = Vector(util.SharedRandom("fproj_base_x", -0.017, 0.017), util.SharedRandom("fproj_base_y", -0.017, 0.017), util.SharedRandom("fproj_base_z", -0.017, 0.017))
-	local tData = {
-		Pos = tbl.Pos or owner:EyePos(),
-		Vel = tbl.Vel or (normal:Forward() + VecRandom) * 15000 * engine.TickInterval(),
-		Gravity = tbl.Gravity or physenv.GetGravity() * 0.01 * engine.TickInterval(),
-		Drag = tbl.Drag or 0.999,
-		Dmg = tbl.Dmg or DamageInfo(),
-		ForceMul = tbl.ForceMul or 40,
-		Effect = tbl.Effect or "fproj_basebullet",
-	}
-	fproj.ProjectileTable[self] = fproj.ProjectileTable[self] or {}
-	table.insert(fproj.ProjectileTable[self], tData)
-	local ef = EffectData()
+function SWEP:CreateProjectile(BulletData)
+	if not IsFirstTimePredicted() then return end
 
+	BulletData.DistTravelledSqr = 0
+	fproj.PTbl[self] = fproj.PTbl[self] or {}
+	table.insert(fproj.PTbl[self], BulletData)
+
+	local ef = EffectData()
 	ef:SetEntity(self)
-	util.Effect(tData.Effect, ef, true, true)
+	util.Effect(fproj.RTbl[BulletData.ID].Effect, ef, true, true)
 end
 
 function SWEP:PrimaryAttack()
-	if self:Clip1() < 1 then
-		self:Reload()
+	if not self:CanPrimaryAttack() then
 		return
 	end
 
 	local owner = self:GetOwner()
 	self:TakePrimaryAmmo(1)
-	self:SetNextPrimaryFire(CurTime() + ((self:Clip1() == 0) and 0.5 or 0.11))
+	self:SetNextPrimaryFire(CurTime() + ((self:Clip1() == 0) and 0.5 or 0.09))
 	owner:ViewPunch(Angle(self.Primary.Recoil, 0, 0))
 
 	self:ShootEffects()
 	self:EmitSound("weapons/fiveseven/fiveseven-1.wav", 100, math.random(120, 130), 0.8, CHAN_STATIC)
 	self:EmitSound("^weapons/aug/aug-1.wav", 90, math.random(150, 160), 0.6, CHAN_STATIC)
 
-	if not IsFirstTimePredicted() then return end
-	local dmg = DamageInfo()
-	dmg:SetDamage(20)
-	dmg:SetAttacker(owner)
-	dmg:SetInflictor(self)
-	dmg:SetDamageType(DMG_BULLET)
-	self:CreateProjectile("TestProjectile",{
-		Dmg = dmg
+	local normal = self:GetRecoilCompensatedNormal()
+	local VecRandom = Vector(util.SharedRandom("fproj_base_x", -0.017, 0.017), util.SharedRandom("fproj_base_y", -0.017, 0.017), util.SharedRandom("fproj_base_z", -0.017, 0.017))
+
+	self:CreateProjectile({
+		ID = "fproj_baseprimary",
+		Pos = owner:EyePos(),
+		Vel = (normal:Forward() + VecRandom) * 15000 * engine.TickInterval()
 	})
 end
 
@@ -130,40 +178,32 @@ function SWEP:DoImpactEffect(tr, dmgNum)
 end
 
 hook.Add("Tick", "base_fproj_timestep", function()
-	for k, v in pairs(fproj.ProjectileTable) do
-		if not IsValid(k) then
-			fproj.ProjectileTable[k] = nil
+	for Wep, ActiveProjectile in pairs(fproj.PTbl) do
+		--If the weapon stops existing, bail
+		if not IsValid(Wep) then
+			fproj.PTbl[Wep] = nil
 			continue
 		end
-		for kk,  Proj in ipairs(v) do
-			if not IsValid(k) then
-				fproj.ProjectileTable[k] = nil
+		for I,  Proj in ipairs(ActiveProjectile) do
+			--If the weapon stops existing, break this loop
+			local ID = Proj.ID
+			if not IsValid(Wep) then
+				fproj.PTbl[Wep] = nil
 				break
 			end
 			local tr = util.TraceLine({
 				start = Proj.Pos,
 				endpos = Proj.Pos + Proj.Vel,
-				filter = k:GetOwner()
+				filter = Wep:GetOwner()
 			})
-			if tr.Hit then
-				if SERVER then
-					Proj.Dmg:SetReportedPosition(tr.HitPos)
-					Proj.Dmg:SetDamagePosition(tr.HitPos)
-					Proj.Dmg:ScaleDamage(HitGroup_DmgScale[tr.HitGroup])
-					Proj.Dmg:SetDamageForce(tr.Normal * Proj.ForceMul)
-					local phys = tr.Entity:GetPhysicsObject()
-					if phys then
-						phys:ApplyForceOffset(tr.Normal * Proj.ForceMul * Proj.Dmg:GetDamage() + Proj.Vel, tr.HitPos)
-					elseif tr.Entity:IsPlayer() or tr.Entity:IsNPC() then
-						tr.Entity:SetVelocity(tr.Normal * Proj.ForceMul * Proj.Dmg:GetDamage() * 1000 + Proj.Vel)
-					end
-					k:DoImpactEffect(tr, Proj.Dmg:GetDamageType(), false, true)
-					tr.Entity:TakeDamageInfo(Proj.Dmg)
-				end
+			Proj.DistTravelledSqr = Proj.DistTravelledSqr + Proj.Vel:LengthSqr()
+
+			if tr.Hit then --Do the damage, kill the table entry
+				fproj.RTbl[ID].OnImpact(Wep, Wep:GetOwner(), tr, Proj)
 				Proj.Vel = nil
-				table.remove(fproj.ProjectileTable[k], kk)
-			else
-				Proj.Vel = Proj.Vel * Proj.Drag + Proj.Gravity
+				table.remove(fproj.PTbl[Wep], I)
+			else --Keep iterating
+				Proj.Vel = Proj.Vel * fproj.RTbl[ID].Drag + fproj.RTbl[ID].Gravity
 				Proj.Pos = tr.HitPos
 			end
 		end

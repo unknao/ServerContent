@@ -1,6 +1,6 @@
 function EFFECT:Init(Data)
     self.Parent = Data:GetEntity()
-    self.tbl = fproj.ProjectileTable[self.Parent][#fproj.ProjectileTable[self.Parent]]
+    self.tbl = fproj.PTbl[self.Parent][#fproj.PTbl[self.Parent]]
     self:SetModel("models/props_junk/CinderBlock01a.mdl")
     self.ParticleEmitter = ParticleEmitter(self:GetPos())
 end
