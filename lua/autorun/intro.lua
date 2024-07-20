@@ -92,20 +92,18 @@ local dots = Material("icon16/database.png")
 local clock = Material("icon16/accept.png")
 
 local people_skins = {
-	Material("icon16/user.png"),
-	Material("icon16/user_female.png"),
-	Material("icon16/user_gray.png"),
-	Material("icon16/user_green.png"),
-	Material("icon16/user_orange.png"),
-	Material("icon16/user_red.png"),
-	Material("icon16/user_suit.png")
+	[1] = Material("icon16/user_female.png"),
+	[2] = Material("icon16/user.png"),
+	[3] = Material("icon16/user_gray.png"),
+	[4] = Material("icon16/user_green.png"),
+	[5] = Material("icon16/user_orange.png"),
+	[6] = Material("icon16/user_red.png"),
+	[7] = Material("icon16/user_suit.png")
 }
 local people = {}
 for i = 0, 20 do
-	local skins = table.Random(people_skins)
-	people[i] = isnumber(skins) and people_skins[1] or skins
+	people[i] = table.Random(people_skins)
 end
---PrintTable(people)
 
 hook.Add("HUDShouldDraw", tag, function()
 	hook.Remove("HUDShouldDraw", tag)
@@ -200,7 +198,6 @@ hook.Add("DrawOverlay", tag, function()
 	end
 
 	--Three dots
-
 	surface.SetMaterial(dots)
 	for i = 0, 2 do
 		surface.DrawTexturedRect(ScrW() / 2 - 146 + 130 * i, ScrH() / 2 + 140 - math.max(math.sin(SysTime() * 5 + i * 20), 0) * 30, 32, 32)
