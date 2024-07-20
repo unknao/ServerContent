@@ -31,17 +31,22 @@ end
 
 function SWEP:PrimaryAttack()
 	self:SetNextPrimaryFire( CurTime() + 1 )
+	self:SetNextSecondaryFire( CurTime() + 1)
+
 	self.Owner:SetAnimation(PLAYER_ATTACK1)
 	self:SendWeaponAnim(ACT_VM_PRIMARYATTACK)
 	self:EmitSound(Sound("weapons/widow_maker_shot_0"..math.random(1,3)..".wav"))
-	if !SERVER then return end
+	if CLIENT then return end
+
 	for i=1,30 do
 		local frag = ents.Create("npc_grenade_frag")
+		if(!IsValid(frag)) then return end
+
 		frag:SetColor(HSVToColor(i*12,1,1))
 		frag:SetMaterial("models/debug/debugwhite",true)
-		if(!IsValid(frag)) then return end
+		frag:SetCollisionGroup(COLLISION_GROUP_PROJECTILE)
 		frag:SetPos(self.Owner:EyePos() + ( self.Owner:GetAimVector() * 16 ) )
-		frag:SetAngles( self.Owner:EyeAngles()+Angle(90,0,0))
+		frag:SetAngles(self.Owner:EyeAngles()+Angle(90,0,0))
 		frag:SetOwner(self.Owner)
 		frag:Spawn()
 		local phys = frag:GetPhysicsObject()
@@ -55,25 +60,29 @@ function SWEP:PrimaryAttack()
 end
 
 function SWEP:SecondaryAttack()
-	self:SetNextSecondaryFire(CurTime()+0.3)
+	self:SetNextSecondaryFire(CurTime()+0.05)
+	self:SetNextPrimaryFire( CurTime() + 0.05 )
 	self.Owner:SetAnimation(PLAYER_ATTACK1)
 	self:SendWeaponAnim(ACT_VM_PRIMARYATTACK)
 	self:EmitSound(Sound("weapons/tf_spy_enforcer_revolver_0"..math.random(1,6)..".wav"))
-	if !SERVER then return end
+	if CLIENT then return end
+
 	local rocket = ents.Create("rpg_missile")
 	if(!IsValid(rocket)) then return end
-	rocket:SetPos(self.Owner:EyePos() + ( self.Owner:GetAimVector() * 16 +Vector(0,0,20)) )
-	rocket:SetAngles( self.Owner:EyeAngles())
+
+	rocket:SetCollisionGroup(COLLISION_GROUP_PROJECTILE)
+	rocket:SetPos(self.Owner:EyePos())
+	rocket:SetAngles( self.Owner:EyeAngles() + AngleRand(-3, 3))
+	rocket:SetVelocity((self:GetOwner():GetAimVector() + VectorRand(-0.05, 0.05)) * 500 + Vector(0, 0, 100))
 	rocket:SetOwner(self.Owner)
 	rocket:SetSaveValue( "m_flDamage", 100 )
 	rocket:Spawn()
 	rocket:Activate()
-	rocket:SetOwner(self.Owner)
-	
+
 end
 
 function SWEP:ShouldDropOnDie()
-	
+
 	return false
-	
+
 end

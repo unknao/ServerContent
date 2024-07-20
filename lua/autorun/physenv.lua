@@ -9,14 +9,10 @@ local Phys_Defaults = {
 	["MaxAngularVelocity"] = 7273,
 }
 
-hook.Add("InitPostEntity","physenv",function()
-	for k, v in pairs(Phys_Defaults) do
-		local cvarname = "phys_" .. k:lower()
-		local physcvar = CreateConVar(cvarname, v, FCVAR_NOTIFY)
-		cvars.AddChangeCallback(cvarname, function(_, _, new)
-			physenv.SetPerformanceSettings({k = new})
-		end)
-
-		physenv.SetPerformanceSettings({k = physcvar:GetInt()})
-	end
-end)
+for k, v in pairs(Phys_Defaults) do
+	local cvarname = "phys_" .. k:lower()
+	CreateConVar(cvarname, v, FCVAR_NOTIFY)
+	cvars.AddChangeCallback(cvarname, function(_, _, new)
+		physenv.SetPerformanceSettings({[k] = tonumber(new)})
+	end)
+end

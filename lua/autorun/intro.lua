@@ -88,9 +88,24 @@ local Start
 local pc = Material("materials/icon16/computer.png")
 local glow = Material("sprites/physg_glow1")
 local fire = Material("icon16/fire.png")
-local dots = Material("icon16/bomb.png")
-local people = Material("icon16/user.png")
+local dots = Material("icon16/database.png")
 local clock = Material("icon16/accept.png")
+
+local people_skins = {
+	Material("icon16/user.png"),
+	Material("icon16/user_female.png"),
+	Material("icon16/user_gray.png"),
+	Material("icon16/user_green.png"),
+	Material("icon16/user_orange.png"),
+	Material("icon16/user_red.png"),
+	Material("icon16/user_suit.png")
+}
+local people = {}
+for i = 0, 20 do
+	local skins = table.Random(people_skins)
+	people[i] = isnumber(skins) and people_skins[1] or skins
+end
+--PrintTable(people)
 
 hook.Add("HUDShouldDraw", tag, function()
 	hook.Remove("HUDShouldDraw", tag)
@@ -146,7 +161,7 @@ hook.Add("DrawOverlay", tag, function()
 	surface.DrawTexturedRectRotated(ScrW() / 2 + math.random(-2, 2), ScrH() / 2 + math.random(-2, 2), 128, 128, math.random(-1, 1))
 
 	--Fire
-	if firetick < SysTime() then --Timers don't cut it for this use case.
+	if firetick < SysTime() then --Timers don't run when CurTime() doesn't run
 		for i = 1, 20 do
 			firecoord.x[i], firecoord.y[i], firecoord.rot[i] = math.random(-65, 65), math.random(-20, 20), math.random(-10, 10)
 		end
@@ -163,32 +178,44 @@ hook.Add("DrawOverlay", tag, function()
 		surface.DrawTexturedRectRotated(ScrW() / 2 + firecoord.x[i], ScrH() / 2 + firecoord.y[i] + 50, 180, 180, firecoord.rot[i])
 	end
 
-	--Three dots
+	--People surrounding
 	surface.SetDrawColor(200, 200, 200, 255 * Alpha)
+	for i = 11, 20 do
+		surface.SetMaterial(people[i])
+
+		local mul = math.rad(i * 18)
+		local x, y = ScrW() / 2 + math.cos(mul) * 240, ScrH() / 2 + math.sin(mul) * 50 + 170 + math.cos(mul + SysTime() * 5) * 4
+		local scale = 26 + 6 * math.sin(mul)
+
+		surface.DrawTexturedRectRotated(x, y, scale, scale, math.sin(mul + SysTime() * 5) * 5)
+	end
+	for i = 0, 10 do
+		surface.SetMaterial(people[i])
+
+		local mul = math.rad(i * 18)
+		local x, y = ScrW() / 2 + math.cos(mul) * 240, ScrH() / 2 + math.sin(mul) * 50 + 170 + math.cos(mul + SysTime() * 5) * 4
+		local scale = 26 + 6 * math.sin(mul)
+
+		surface.DrawTexturedRectRotated(x, y, scale, scale, math.sin(mul + SysTime() * 5) * 5)
+	end
+
+	--Three dots
+
 	surface.SetMaterial(dots)
 	for i = 0, 2 do
 		surface.DrawTexturedRect(ScrW() / 2 - 146 + 130 * i, ScrH() / 2 + 140 - math.max(math.sin(SysTime() * 5 + i * 20), 0) * 30, 32, 32)
-	end
-
-	--People surrounding
-	surface.SetMaterial(people)
-	for i = 0, 14 do
-		local wave = 300 + math.sin(math.rad(SysTime() * 360 + i * 24)) * 9
-		local x, y = ScrW() / 2 + math.sin(math.rad(SysTime() * 15 + i * 24)) * wave, ScrH() / 2 + math.cos(math.rad(SysTime() * 15 + i * 24)) * wave
-
-		surface.DrawTexturedRectRotated(x, y, 32, 32, SysTime() * 15 + i * 24 + 180)
 	end
 
 	--Loading text
 	for i, v in ipairs(loadingTable.text) do
 		text_color1.a = 255 * Alpha
 		draw.Text({
-				text = v,
-				font = tag,
-				xalign = 2,
-				yalign = 3,
-				color = text_color1,
-				pos = {ScrW() / 2 - 400, ScrH() / 2 - 200 + 35 * i}
+			text = v,
+			font = tag,
+			xalign = 2,
+			yalign = 3,
+			color = text_color1,
+			pos = {ScrW() / 2 - 400, ScrH() / 2 - 200 + 35 * i}
 		})
 
 		if type(loadingTable.time[i]) == "number" then
@@ -198,12 +225,12 @@ hook.Add("DrawOverlay", tag, function()
 		end
 
 		draw.Text({
-				text = livetime,
-				font = tag,
-				xalign = 0,
-				yalign = 3,
-				color = text_color1,
-				pos = {ScrW() / 2 - 400, ScrH() / 2 - 200 + 35 * i}
+			text = livetime,
+			font = tag,
+			xalign = 0,
+			yalign = 3,
+			color = text_color1,
+			pos = {ScrW() / 2 - 400, ScrH() / 2 - 200 + 35 * i}
 		})
 	end
 
@@ -215,11 +242,11 @@ hook.Add("DrawOverlay", tag, function()
 	--This is fine
 	text_color2.a = 255 * Alpha
 	draw.Text({
-			text = "This is fine.",
-			font = "introfancy",
-			xalign = 1,
-			yalign = 1,
-			color = text_color2,
-			pos = {ScrW() / 2, ScrH() / 2 - 150}
+		text = "This is fine.",
+		font = "introfancy",
+		xalign = 1,
+		yalign = 1,
+		color = text_color2,
+		pos = {ScrW() / 2, ScrH() / 2 - 150}
 	})
 end)
