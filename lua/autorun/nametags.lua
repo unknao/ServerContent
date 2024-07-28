@@ -24,13 +24,14 @@ local SVGS = {
 
 
 --dont forget to make it readable next time
-hook.Add("PostDrawTranslucentRenderables",tag,function()
+hook.Add("PreDrawTranslucentRenderables",tag,function()
 	if NAMETAG_HIDE:GetBool() then return end
+
 	for _, ply in ipairs(player.GetAll()) do
 		if ply:IsDormant() then continue end
 		if ply == LocalPlayer() and not ply:ShouldDrawLocalPlayer() then continue end
 
-		local ply_or_ragdoll = ply:GetRagdollEntity() == NULL and ply or ply:GetRagdollEntity()
+		local ply_or_ragdoll = IsValid(ply:GetRagdollEntity()) and ply:GetRagdollEntity() or ply
 		local head_attach = ply_or_ragdoll:LookupBone("ValveBiped.Bip01_Head1")
 		if not head_attach then continue end
 

@@ -4,7 +4,7 @@ SWEP.Author="John Weapon"
 SWEP.Purpose="ball"
 SWEP.Slot=2
 SWEP.SlotPos=2
-SWEP.Category="¶"
+SWEP.Category="ï¿½"
 SWEP.Spawnable=true
 
 SWEP.ViewModel=Model("models/weapons/c_pistol.mdl")
@@ -57,12 +57,12 @@ local function spawn(self,spd)
 	timer.Simple(0, function()
 		if not IsValid(self) then return end
 		if not IsValid(self.Owner) then return end
-		
+
 		for k,v in pairs(ents.FindInSphere(pos, 20)) do
 			if not IsValid(v) then continue end
 			if not v:GetClass() == "prop_combine_ball" then continue end
 			if IsValid(v:GetOwner()) then continue end
-			
+
 			v:SetOwner(self.Owner)
 			v:GetPhysicsObject():AddGameFlag( FVPHYSICS_WAS_THROWN )
 		end
