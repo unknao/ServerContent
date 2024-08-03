@@ -1,17 +1,17 @@
 local TOOLTIPHELPER = {}
-surface.CreateFont("Micro_Scoreboard_14",{
+surface.CreateFont("MICRO_SCOREBOARDboard_14",{
 	font = "HudHintTextLarge",
 	size = 14,
 	antialias = true
 })
 local cTooltipOutline = Color(60, 60 ,60)
 function TOOLTIPHELPER:Init()
-	self:SetFont("Micro_Scoreboard_14")
+	self:SetFont("MICRO_SCOREBOARDboard_14")
 	self:SetTextColor(cTooltipOutline)
 end
 
 function TOOLTIPHELPER:Paint(w, h)
-	surface.SetDrawColor(MICRO_SCORE.Player_BGColor)
+	surface.SetDrawColor(MICRO_SCOREBOARD.Player_BGColor)
 	surface.DrawRect(0, 0, w, h)
 	surface.SetDrawColor(cTooltipOutline)
 	surface.DrawOutlinedRect(0, 0, w, h)

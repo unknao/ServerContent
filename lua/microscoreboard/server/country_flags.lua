@@ -1,4 +1,4 @@
-local tag = "Micro_Scoreboard_Flags"
+local tag = "MICRO_SCOREBOARDboard_Flags"
 
 hook.Add("PlayerInitialSpawn", tag, function(ply)
 	if ply:IsBot() then return end

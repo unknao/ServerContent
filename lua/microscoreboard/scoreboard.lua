@@ -1,15 +1,15 @@
 local function CreateScoreboard()
-    if IsValid(MICRO_SCORE.Scoreboard) then MICRO_SCORE.Scoreboard:Remove() end
+    if IsValid(MICRO_SCOREBOARD.Scoreboard) then MICRO_SCOREBOARD.Scoreboard:Remove() end
 
-    MICRO_SCORE.Scoreboard = vgui.Create("MS_ScoreboardFrame")
-    MICRO_SCORE.Scoreboard:SetVisible(false)
+    MICRO_SCOREBOARD.Scoreboard = vgui.Create("MS_ScoreboardFrame")
+    MICRO_SCOREBOARD.Scoreboard:SetVisible(false)
 end
 
 local function CreateInfoPanel()
-    if IsValid(MICRO_SCORE.InfoPanel) then MICRO_SCORE.InfoPanel:Remove() end
+    if IsValid(MICRO_SCOREBOARD.InfoPanel) then MICRO_SCOREBOARD.InfoPanel:Remove() end
 
-    MICRO_SCORE.InfoPanel = vgui.Create("MS_ServerInfo")
-    MICRO_SCORE.InfoPanel:SetVisible(false)
+    MICRO_SCOREBOARD.InfoPanel = vgui.Create("MS_ServerInfo")
+    MICRO_SCOREBOARD.InfoPanel:SetVisible(false)
 end
 
 concommand.Add("recreatescoreboard", function()
@@ -17,28 +17,28 @@ concommand.Add("recreatescoreboard", function()
     CreateInfoPanel()
 end)
 
-hook.Add("ScoreboardShow", "Micro_Scoreboard", function()
-    if not IsValid(MICRO_SCORE.Scoreboard) then
+hook.Add("ScoreboardShow", "MICRO_SCOREBOARDboard", function()
+    if not IsValid(MICRO_SCOREBOARD.Scoreboard) then
         CreateScoreboard()
     end
-    MICRO_SCORE.Scoreboard:Open()
+    MICRO_SCOREBOARD.Scoreboard:Open()
 
-    if not IsValid(MICRO_SCORE.InfoPanel) then
+    if not IsValid(MICRO_SCOREBOARD.InfoPanel) then
         CreateInfoPanel()
     end
-    MICRO_SCORE.InfoPanel:Open()
+    MICRO_SCOREBOARD.InfoPanel:Open()
     return true
 end)
 
-hook.Add("ScoreboardHide", "Micro_Scoreboard", function()
-    if not IsValid(MICRO_SCORE.Scoreboard) then
+hook.Add("ScoreboardHide", "MICRO_SCOREBOARDboard", function()
+    if not IsValid(MICRO_SCOREBOARD.Scoreboard) then
         CreateScoreboard()
     end
-    MICRO_SCORE.Scoreboard:Close()
-    if MICRO_SCORE.Menu then MICRO_SCORE.Menu:Remove() end
+    MICRO_SCOREBOARD.Scoreboard:Close()
+    if MICRO_SCOREBOARD.Menu then MICRO_SCOREBOARD.Menu:Remove() end
 
-    if not IsValid(MICRO_SCORE.InfoPanel) then
+    if not IsValid(MICRO_SCOREBOARD.InfoPanel) then
         CreateInfoPanel()
     end
-    MICRO_SCORE.InfoPanel:Close()
+    MICRO_SCOREBOARD.InfoPanel:Close()
 end)

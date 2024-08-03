@@ -1,4 +1,4 @@
-MICRO_SCORE = {
+MICRO_SCOREBOARD = {
 	paths = {
 		sv = "microscoreboard/server/",
 		cl = "microscoreboard/client/",
@@ -32,7 +32,7 @@ local function LoadFolder(path, realm)
 	end
 end
 
-for k, v in pairs(MICRO_SCORE.paths) do
+for k, v in pairs(MICRO_SCOREBOARD.paths) do
 	LoadFolder(v, k)
 end
 
