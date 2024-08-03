@@ -1,12 +1,18 @@
---Networked variable library that updates once on value being set
---[[Usage:
-nw3.SetGlobalString("foo", "hello world") --Server only
-str = nw3.GetGlobalString("foo")
---str = "hello world"
+--[[
+    Networked variable library that updates once on value being set
 
-Entity(1):nw3SetString("bar", "foo")
-str = Entity(1):nw3GetString("bar")
---str = "foo"
+    Usage:
+        nw3.SetGlobalString("foo", "hello world") --Server only
+        str = nw3.GetGlobalString("foo")
+        --str = "hello world"
+
+        Entity(1):nw3SetString("bar", "foo")
+        str = Entity(1):nw3GetString("bar")
+        --str = "foo"
+
+    Hooks (client only):
+        OnNW3ReceivedGlobalValue (type, ID, value)
+        OnNW3ReceivedEntityValue (entity ID, type, ID, value)
 ]]
 AddCSLuaFile()
 local ENTITY = FindMetaTable("Entity")
@@ -116,7 +122,7 @@ if SERVER then
 
     --Queue building & handling
 
-    local function nw3FlushGlobalQueue()
+    local function flush_global_queue()
         if player.GetCount() == 0 then return end
 
         for Type, TypeTable in pairs(nw3storage.GlobalQueue) do
@@ -153,12 +159,12 @@ if SERVER then
         nw3storage.GlobalQueue[Type][ID] = Var
 
         timer.Create("nw3_FlushGlobalQueue", 0, 1, function()
-            local co = coroutine.create(nw3FlushGlobalQueue)
+            local co = coroutine.create(flush_global_queue)
             coroutine.resume(co)
         end)
     end
 
-    local function nw3FlushEntityQueue()
+    local function flush_entity_queue()
         if player.GetCount() == 0 then return end
 
         for EntIndex, EntTable in pairs(nw3storage.EntityQueue) do
@@ -203,7 +209,7 @@ if SERVER then
         nw3storage.EntityQueue[EntIndex][Type][ID] = Var
 
         timer.Create("nw3_FlushEntityQueue", 0, 1, function()
-            local co = coroutine.create(nw3FlushEntityQueue)
+            local co = coroutine.create(flush_entity_queue)
             coroutine.resume(co)
         end)
     end
@@ -283,8 +289,8 @@ net.Receive("nw3_sync", function()
         else
             Var = net["Read" .. typ]()
         end
-        if bDebugPrint:GetBool() then print(string.format("[nw3] Global %s, %s, %s", typ, ID, Var)) end
         nw3storage.Variables[typ][ID] = Var
+        hook.Run("OnNW3ReceivedGlobalValue", typ, ID, Var)
     end
 end)
 
@@ -306,8 +312,20 @@ net.Receive("nw3_sync_entity", function()
             Var = net["Read" .. typ]()
         end
 
-        if bDebugPrint:GetBool() then print(string.format("[nw3] Entity(%i) %s, %s, %s", entindex, typ, ID, Var)) end
         nw3storage.Entities[entindex][typ][ID] = Var
+        hook.Run("OnNW3ReceivedEntityValue", entindex, typ, ID, Var)
     end
+end)
+
+hook.Add("OnNW3ReceivedGlobalValue", "nw3_debug", function(typ, ID, Var)
+    if not bDebugPrint:GetBool() then return end
+
+    print(string.format("[nw3] Global %s, %s, %s", typ, ID, Var))
+end)
+
+hook.Add("OnNW3ReceivedEntityValue", "nw3_debug", function(entindex, typ, ID, Var)
+    if not bDebugPrint:GetBool() then return end
+
+    print(string.format("[nw3] Entity(%i) %s, %s, %s", entindex, typ, ID, Var))
 end)
 

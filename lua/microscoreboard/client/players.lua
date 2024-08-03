@@ -164,6 +164,14 @@ function PANEL:SetPlayer(ply)
 	self.RankPadding = 14
 end
 
+function PANEL:UpdateFlag(flag)
+	self.Flag:SetImage("flags16/" .. flag .. ".png")
+end
+
+function PANEL:UpdateCountryName(name)
+	self.Flag:SetTooltip(name)
+end
+
 function PANEL:Paint(w, h)
 	if not IsValid(self.ply) then
 		self:Remove()

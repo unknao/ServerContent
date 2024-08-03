@@ -102,4 +102,15 @@ hook.Add("OnEntityCreated", "Micro_Scoreboard_PlayerJoin", function(ply)
     MICRO_SCORE.Scoreboard:UpdateSize(player.GetCount())
 end)
 
+hook.Add("OnNW3ReceivedEntityValue", "micro_scoreboard_flag_update", function(entindex, _, id, var)
+    local panel = MICRO_SCORE.PlayerPanels[entindex]
+    if not panel then return end
+
+    if id == "country_code" then
+        panel:UpdateFlag(Var)
+    elseif id == "country" then
+        panel:UpdateCountryName(var)
+    end
+end)
+
 vgui.Register("MS_ScoreboardFrame", PANEL, "DFrame")
