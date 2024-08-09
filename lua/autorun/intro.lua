@@ -150,6 +150,17 @@ hook.Add("DrawOverlay", tag, function()
 		surface.DrawRect(0, 0, ScrW(), ScrH())
 	end
 
+	surface.SetDrawColor(200, 200, 200, 255 * Alpha)
+	for i = 11, 20 do
+		surface.SetMaterial(people[i])
+
+		local mul = math.rad(i * 18)
+		local x, y = ScrW() / 2 + math.cos(mul) * 240, ScrH() / 2 + math.sin(mul) * 50 + 170 + math.cos(mul + SysTime() * 5) * 4
+		local scale = 26 + 6 * math.sin(mul)
+
+		surface.DrawTexturedRectRotated(x, y, scale, scale, math.sin(mul + SysTime() * 5) * 5)
+	end
+
 	surface.SetMaterial(glow)
 	surface.SetDrawColor(235, 117, 77, 170 * Alpha)
 	surface.DrawTexturedRectRotated(ScrW() / 2, ScrH() / 2, 750, 750, SysTime() * 40)
@@ -178,15 +189,6 @@ hook.Add("DrawOverlay", tag, function()
 
 	--People surrounding
 	surface.SetDrawColor(200, 200, 200, 255 * Alpha)
-	for i = 11, 20 do
-		surface.SetMaterial(people[i])
-
-		local mul = math.rad(i * 18)
-		local x, y = ScrW() / 2 + math.cos(mul) * 240, ScrH() / 2 + math.sin(mul) * 50 + 170 + math.cos(mul + SysTime() * 5) * 4
-		local scale = 26 + 6 * math.sin(mul)
-
-		surface.DrawTexturedRectRotated(x, y, scale, scale, math.sin(mul + SysTime() * 5) * 5)
-	end
 	for i = 0, 10 do
 		surface.SetMaterial(people[i])
 
