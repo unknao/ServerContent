@@ -37,7 +37,6 @@ svg.Generate("micro_scoreboard_dmenu_goto", 16, 16, [[<!-- icon666.com - MILLION
 svg.Generate("micro_scoreboard_dmenu_bring", 16, 16, [[<!-- icon666.com - MILLIONS vector ICONS FREE --><svg viewBox="-33 -141 1065.0001 1065" xmlns="http://www.w3.org/2000/svg"><path d="m679.929688 141.726562h-440.1875v-150.5l-241.761719 241.773438 241.761719 241.761719v-155.546875h440.1875c76.644531 0 139.003906 62.359375 139.003906 139.003906 0 76.648438-62.359375 139-139.003906 139h-501.996094v177.488281h501.996094c174.511718 0 316.488281-141.972656 316.488281-316.488281s-141.976563-316.492188-316.488281-316.492188zm0 0"/></svg>]])
 svg.Generate("micro_scoreboard_dmenu_kick", 16, 16, [[<!-- icon666.com - MILLIONS vector ICONS FREE --><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g><g><path d="M324.364,291.484v-86.36H50.909v281.242c0,14.158,11.478,25.635,25.636,25.635h393.091 c14.158,0,25.636-11.477,25.636-25.636C495.273,386.674,420.675,304.082,324.364,291.484z"/></g></g><g><g><path d="M332.909,0H42.363C28.205,0,16.727,11.478,16.727,25.636v102.546c0,14.16,11.478,25.636,25.636,25.636h8.545v0.032 h273.455v-0.032h8.545c14.158,0,25.636-11.477,25.636-25.636V25.636C358.546,11.478,347.067,0,332.909,0z"/></g></g></svg>]])
 
-
 local function CreateMenuPanel(ply)
 	Menu = DermaMenu(false)
 	Menu:SetDeleteSelf(true)

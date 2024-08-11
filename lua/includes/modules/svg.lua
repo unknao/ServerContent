@@ -15,6 +15,7 @@
 
 AddCSLuaFile()
 if SERVER then return end
+local svg_debugprint = CreateConVar("svg_debugprint", 0, FCVAR_ARCHIVE, "Prints useful debugging information throughout the svg material acquisition process", 0, 1)
 
 svg = svg or {
 	Cache = {},
@@ -22,7 +23,7 @@ svg = svg or {
 	Proceed = false
 }
 
-hook.Add("OnGamemodeLoaded", "SVG_CanWork", function()
+hook.Add("OnGamemodeLoaded", "SVG_CanWork", function() --Workaround for not being able to make derma panels right away
 	timer.Simple(0, function()
 		svg.Proceed = true
 		for _, co in ipairs(svg.Coroutines) do
@@ -61,6 +62,7 @@ end
 
 function svg.Generate(...)
 	coroutine.resume(coroutine.create(function(ID, w, h, strSVG)
+		if svg_debugprint:GetBool() then print("[SVG] '" .. ID .. "' Material creation started.") end
 		local coRunning = coroutine.running()
 
 		assert(isstring( strSVG ), "Invalid SVG")
@@ -72,9 +74,11 @@ function svg.Generate(...)
 		strSVG = string.gsub( strSVG, [[width="(.-)"]], string.format([[width="%i"]], w ))
 		strSVG = string.gsub( strSVG, [[height="(.-)"]], string.format([[height="%i"]], h))
 
-		if not svg.Proceed then
+		if not svg.Proceed then --Wait until derma panels can be made if necessary
+			if svg_debugprint:GetBool() then print("[SVG] '" .. ID .. "' Waiting for client to load.") end
 			table.insert(svg.Coroutines, coRunning)
 			coroutine.yield()
+			if svg_debugprint:GetBool() then print("[SVG] '" .. ID .. "' Client loading complete.") end
 		end
 
 		local HTML_Panel = vgui.Create("DHTML")
@@ -82,12 +86,15 @@ function svg.Generate(...)
 		HTML_Panel:SetHTML(SVGTemplate:format(strSVG))
 		HTML_Panel:SetSize(w, h)
 		HTML_Panel:UpdateHTMLTexture()
+		if svg_debugprint:GetBool() then print("[SVG] '" .. ID .. "' HTML panel created.") end
 		HTML_Panel.OnFinishLoadingDocument = function(self)
 			self:UpdateHTMLTexture()
-			timer.Create("SVG2_" .. ID, 0, 0, function()
+			timer.Create("SVG_" .. ID, 0, 0, function()
+				if not self:GetHTMLMaterial() then return end
 				if self:GetHTMLMaterial():IsError() then return end --Code might randomly fail here because GetHTMLMaterial doesn't always return something
 				coroutine.resume(coRunning, self:GetHTMLMaterial():GetName())
-				timer.Remove("SVG2_" .. ID)
+				timer.Remove("SVG_" .. ID)
+				if svg_debugprint:GetBool() then print("[SVG] '" .. ID .. "' Material acquired, svg creation success.") end
 				self:Remove()
 			end)
 		end
@@ -125,7 +132,7 @@ end
 function svg.Draw(ID, x, y, color)
 	local svgdata = svg.Cache[ID]
 	if not istable(svgdata) then
-		print("[SVG] Attempted to draw an uncached SVG '",ID,"'")
+		ErrorNoHalt("Attempted to draw an uncached SVG '",ID,"'")
 		return
 	end
 
