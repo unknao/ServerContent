@@ -1,6 +1,7 @@
 local Entity = FindMetaTable("Entity")
 local Player = FindMetaTable("Player")
 local Effect = FindMetaTable("CEffectData")
+local Damage = FindMetaTable("CTakeDamageInfo")
 
 --alias
 Entity.Wake = Entity.PhysWake
@@ -30,7 +31,7 @@ end
 
 --Effect debugging utility
 function Effect:GetTable()
-	local tbl = {
+	return {
 		["Entity"] = self:GetEntity(),
 		["Attachment"] = self:GetAttachment(),
 		["Origin"] = self:GetOrigin(),
@@ -47,6 +48,21 @@ function Effect:GetTable()
 		["MaterialIndex"] = self:GetMaterialIndex(),
 		["SurfaceProp"] = self:GetSurfaceProp()
 	}
-	return tbl
+end
+
+function Damage:GetTable()
+	return {
+		["Attacker"] = self:GetAttacker(),
+		["BaseDamage"] = self:GetBaseDamage(),
+		["Damage"] = self:GetDamage(),
+		["DamageBonus"] = self:GetDamageBonus(),
+		["DamageCustom"] = self:GetDamageCustom(),
+		["DamageForce"] = self:GetDamageForce(),
+		["DamagePosition"] = self:GetDamagePosition(),
+		["DamageType"] = self:GetDamageType(),
+		["Inflictor"] = self:GetInflictor(),
+		["MaxDamage"] = self:GetMaxDamage(),
+		["ReportedPosition"] = self:GetReportedPosition()
+	}
 end
 
