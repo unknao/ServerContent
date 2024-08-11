@@ -139,7 +139,7 @@ function SWEP:CreateProjectile(BulletData)
 		net.Start("fproj_shoot")
 		net.WriteEntity(self)
 		net.WriteTable(BulletData)
-		net.WriteVector(self:GetAttachment(2).Pos)
+		net.WriteVector(BulletData.Pos + BulletData.Vel)
 		net.Send(rf)
 		return
 	end
@@ -147,7 +147,7 @@ function SWEP:CreateProjectile(BulletData)
 	PrintTable(self:GetAttachments())
 	local ef = EffectData()
 	ef:SetEntity(self)
-	ef:SetStart(self:GetOwner():GetViewModel():GetAttachment(1).Pos)
+	ef:SetStart(BulletData.Pos + BulletData.Vel)
 	ef:SetMaterialIndex(index)
 	util.Effect(fproj.RTbl[BulletData.ID].Effect, ef, true, true)
 end

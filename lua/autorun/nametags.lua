@@ -24,11 +24,29 @@ local SVGS = {
 	admin = "nametags_admin_200"
 }
 
+hook.Add("OnPlayerChangedTeam", tag, function(ply, _, new_team)
+	if not IsValid(ply) then return end
 
---dont forget to make it readable next time
+	local cName = GAMEMODE:GetTeamNumColor(new_team)
+	local cShadow = Color(cName.r * 0.25, cName.g * 0.25, cName.b * 0.25)
+	if not ply.Nametags then ply.Nametags = {}
+	end
+	ply.Nametags.cName = cName
+	ply.Nametags.cShadow = cShadow
+end)
+
 hook.Add("PostPlayerDraw", tag, function(ply)
 	if nametags_hide:GetBool() then return end
 	if ply == LocalPlayer() and not ply:ShouldDrawLocalPlayer() then return end
+
+	if not ply.Nametags then
+		local cName = GAMEMODE:GetTeamColor(ply)
+		local cShadow = Color(cName.r * 0.25, cName.g * 0.25, cName.b * 0.25)
+		ply.Nametags = {
+			cName = cName,
+			cShadow = cShadow
+		}
+	end
 
 	local ply_or_ragdoll = IsValid(ply:GetRagdollEntity()) and ply:GetRagdollEntity() or ply
 	local head_attach = ply_or_ragdoll:LookupBone("ValveBiped.Bip01_Head1")
@@ -60,15 +78,6 @@ hook.Add("PostPlayerDraw", tag, function(ply)
 		local distalpha = 255 - math.Clamp(-1650 + dist * (5 / scale), 0, 255) --woo magic numbers
 		local diralpha = ply == LocalPlayer() and 255 or math.Clamp(2000 - (1 - EyeVector():Dot(themnorm)) * (dist * (100 / scale)), 0, 255)
 
-		if not ply.Nametags then
-
-			local cName = GAMEMODE:GetTeamColor(ply)
-			local cShadow = Color(cName.r / 4, cName.g / 4, cName.b / 4)
-			ply.Nametags = {
-				cName = cName,
-				cShadow = cShadow
-			}
-		end
 		ply.Nametags.cName.a, ply.Nametags.cShadow.a = math.min(distalpha, diralpha), math.min(distalpha, diralpha)
 
 		draw.SimpleText(text, tag, 8, 8, ply.Nametags.cShadow, TEXT_ALIGN_CENTER)

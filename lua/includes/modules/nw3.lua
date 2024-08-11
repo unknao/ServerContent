@@ -41,6 +41,12 @@ local tFallbacks = {
     Float = 0
 }
 
+local function RealCoroutineWait(seconds)
+    local co = coroutine.running()
+    timer.Simple(seconds, function() coroutine.resume(co) end)
+    coroutine.yield()
+end
+
 if SERVER then
     util.AddNetworkString("nw3_sync")
     util.AddNetworkString("nw3_sync_entity")
@@ -74,7 +80,7 @@ if SERVER then
                 if net.BytesWritten() >= 65000 then
                     net.WriteString("-")
                     net.Send(ply)
-                    coroutine.wait(0)
+                    RealCoroutineWait(0)
                     net.Start("nw3_sync")
                     net.WriteString(k)
                 end
@@ -100,7 +106,7 @@ if SERVER then
                     if net.BytesWritten() >= 65000 then
                         net.WriteString("-")
                         net.Send(ply)
-                        coroutine.wait(0)
+                        RealCoroutineWait(0)
                         net.Start("nw3_sync_entity")
                         net.WriteUInt(i, 13)
                         net.WriteString(typ)
@@ -140,7 +146,7 @@ if SERVER then
                 if net.BytesWritten() >= 65000 then
                     net.WriteString("-")
                     net.Broadcast()
-                    coroutine.wait(0)
+                    RealCoroutineWait(0)
                     net.Start("nw3_sync")
                     net.WriteString(Type)
                 end
@@ -183,7 +189,7 @@ if SERVER then
                     if net.BytesWritten() >= 65000 then
                         net.WriteString("-")
                         net.Broadcast()
-                        coroutine.wait(0)
+                        RealCoroutineWait(0)
                         net.Start("nw3_sync_entity")
                         net.WriteUInt(EntIndex, 13)
                         net.WriteString(Type)

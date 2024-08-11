@@ -45,7 +45,7 @@ local function CreateMenuPanel(ply)
 	CopyMenu:SetMaterial(svg.Cache["micro_scoreboard_dmenu_copy"].mat)
 
 	CopySubMenu:AddOption("Name", function() SetClipboardText(ply:Name()) end):SetMaterial(svg.Cache["micro_scoreboard_dmenu_copy_name"].mat)
-	CopySubMenu:AddOption("buttonProfile URL", function() SetClipboardText("http://steamcommunity.com/profiles/" .. ply:SteamID64()) end):SetMaterial(svg.Cache["micro_scoreboard_dmenu_copy_button_profile_url"].mat)
+	CopySubMenu:AddOption("Profile URL", function() SetClipboardText("http://steamcommunity.com/profiles/" .. ply:SteamID64()) end):SetMaterial(svg.Cache["micro_scoreboard_dmenu_copy_button_profile_url"].mat)
 	CopySubMenu:AddOption("Model", function() SetClipboardText(ply:GetModel()) end):SetMaterial(svg.Cache["micro_scoreboard_dmenu_copy_model"].mat)
 	CopySubMenu:AddSpacer()
 	CopySubMenu:AddOption("SteamID", function() SetClipboardText(ply:SteamID()) end):SetMaterial(svg.Cache["micro_scoreboard_dmenu_copy_steamid"].mat)

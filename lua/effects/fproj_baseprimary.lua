@@ -2,11 +2,11 @@ function EFFECT:Init(Data)
     self:SetRenderBounds(Vector(-64, -64, -64), Vector(64, 64, 64))
     self:SetCollisionBounds(Vector(-64, -64, -64), Vector(64, 64, 64))
 
-    self.Parent = Data:GetEntity()
+    self.Weapon = Data:GetEntity()
     self.index = Data:GetMaterialIndex()
     self.start = Data:GetStart()
 
-    self.tbl = fproj.PTbl[self.Parent][self.index]
+    self.tbl = fproj.PTbl[self.Weapon][self.index]
     if not self.tbl then return end
 
     self.pos = self.start
@@ -20,18 +20,19 @@ function EFFECT:Init(Data)
 end
 
 function EFFECT:Think()
-    if not self.Parent then return false end
+    if not IsValid(self.Weapon) then return false end
+    if not IsValid(self.Weapon:GetParent()) then return false end
     if not self.tbl then return self:Finish() end
     if not self.tbl.Vel then return self:Finish() end
 
     self.pos = self.tbl.Pos or self.pos
     self.vel = self.tbl.Vel or self.vel
-
     self:SetPos(self.pos)
     return true
 end
 
 function EFFECT:Finish()
+    self.finishing = true
     if not self.trail_points then return false end
     if self.trail_points[#self.trail_points] == self.trail_points[1] then
         return false
@@ -46,8 +47,6 @@ function EFFECT:Render()
     if not self.pos then return end
     if not self.vel then return end
 
-    render.SetMaterial(mat)
-    render.DrawQuadEasy(self.pos + self.vel, -EyeVector(), 8, 8, color_white)
     render.StartBeam(20)
         render.SetMaterial(mat_trail)
         for i = 20, 2, -1 do
@@ -57,4 +56,7 @@ function EFFECT:Render()
         self.trail_points[1] = self.pos + self.vel
         render.AddBeam(self.trail_points[1], 5, 0, color_white)
     render.EndBeam()
+    if self.finishing then return end
+    render.SetMaterial(mat)
+    render.DrawQuadEasy(self.pos + self.vel, -EyeVector(), 8, 8, color_white)
 end

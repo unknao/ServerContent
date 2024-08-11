@@ -84,8 +84,10 @@ function svg.Generate(...)
 		HTML_Panel:UpdateHTMLTexture()
 		HTML_Panel.OnFinishLoadingDocument = function(self)
 			self:UpdateHTMLTexture()
-			timer.Simple(0.5, function()
-				coroutine.resume(coRunning, self:GetHTMLMaterial():GetName()) --Code might randomly fail here because GetHTMLMaterial doesn't always return something
+			timer.Create("SVG2_" .. ID, 0, 0, function()
+				if self:GetHTMLMaterial():IsError() then return end --Code might randomly fail here because GetHTMLMaterial doesn't always return something
+				coroutine.resume(coRunning, self:GetHTMLMaterial():GetName())
+				timer.Remove("SVG2_" .. ID)
 				self:Remove()
 			end)
 		end
@@ -123,7 +125,8 @@ end
 function svg.Draw(ID, x, y, color)
 	local svgdata = svg.Cache[ID]
 	if not istable(svgdata) then
-		print(string.format("[SVG] Attempted to draw an uncached SVG '%s'"), tostring(ID))
+		print("[SVG] Attempted to draw an uncached SVG '",ID,"'")
+		return
 	end
 
 	surface.SetDrawColor(color or color_white)
