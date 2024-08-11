@@ -7,10 +7,9 @@ local tMaxSize = {
 	Ballsocket = 51380224
 }
 
-hook.Add("CanConstrain","TCAC_ConstraintDistance", function(tData)
+hook.Add("CanConstrain","anticrash_constrain_distance", function(tData)
 	local Type, Ent1, Ent2, LPos1, LPos2 = tData.Type, tData.Ent1, tData.Ent2, tData.LPos1, tData.LPos2
 	local iDist = tMaxSize[Type]
-	print(Type)
 
 	if iDist then --If distance too great, bail
 		if LPos1:LengthSqr() >= iDist and not Ent1:IsWorld() then

@@ -20,7 +20,7 @@ cvars.AddChangeCallback("sv_sprintspeed", function(_, _, new)
     end
 end)
 
-hook.Add("PlayerInitialSpawn", "walkspeed", function(ply)
+hook.Add("PlayerSpawn", "walkspeed", function(ply)
     timer.Simple(0, function()
         ply:SetWalkSpeed(Run_Speed:GetInt())
         ply:SetSlowWalkSpeed(Walk_Speed:GetInt())

@@ -123,7 +123,7 @@ end
 function svg.Draw(ID, x, y, color)
 	local svgdata = svg.Cache[ID]
 	if not istable(svgdata) then
-		print(string.format("[SVG] Attempted to draw an uncached SVG '%s'"), ID)
+		print(string.format("[SVG] Attempted to draw an uncached SVG '%s'"), tostring(ID))
 	end
 
 	surface.SetDrawColor(color or color_white)

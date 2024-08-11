@@ -21,7 +21,7 @@ SWEP.Primary.ClipSize = 30
 SWEP.Primary.DefaultClip = 30
 SWEP.Primary.Automatic = true
 SWEP.Primary.Ammo = "Pistol"
-SWEP.Primary.Recoil = -2
+SWEP.Primary.Recoil = -0.8
 
 SWEP.Secondary.ClipSize    = -1
 SWEP.Secondary.DefaultClip = -1
@@ -131,10 +131,24 @@ function SWEP:CreateProjectile(BulletData)
 
 	BulletData.DistTravelledSqr = 0
 	fproj.PTbl[self] = fproj.PTbl[self] or {}
-	table.insert(fproj.PTbl[self], BulletData)
+	local index = table.insert(fproj.PTbl[self], BulletData)
+	if SERVER then
+		local rf = RecipientFilter()
+		rf:AddAllPlayers()
+		rf:RemovePlayer(self:GetOwner())
+		net.Start("fproj_shoot")
+		net.WriteEntity(self)
+		net.WriteTable(BulletData)
+		net.WriteVector(self:GetAttachment(2).Pos)
+		net.Send(rf)
+		return
+	end
 
+	PrintTable(self:GetAttachments())
 	local ef = EffectData()
 	ef:SetEntity(self)
+	ef:SetStart(self:GetOwner():GetViewModel():GetAttachment(1).Pos)
+	ef:SetMaterialIndex(index)
 	util.Effect(fproj.RTbl[BulletData.ID].Effect, ef, true, true)
 end
 
@@ -153,7 +167,11 @@ function SWEP:PrimaryAttack()
 	self:EmitSound("^weapons/aug/aug-1.wav", 90, math.random(150, 160), 0.6, CHAN_STATIC)
 
 	local normal = self:GetRecoilCompensatedNormal()
-	local VecRandom = Vector(util.SharedRandom("fproj_base_x", -0.017, 0.017), util.SharedRandom("fproj_base_y", -0.017, 0.017), util.SharedRandom("fproj_base_z", -0.017, 0.017))
+	local VecRandom = Vector(
+		util.SharedRandom("fproj_base_x", -0.017, 0.017),
+		util.SharedRandom("fproj_base_y", -0.017, 0.017),
+		util.SharedRandom("fproj_base_z", -0.017, 0.017)
+	)
 
 	self:CreateProjectile({
 		ID = "fproj_baseprimary",
@@ -188,6 +206,7 @@ hook.Add("Tick", "base_fproj_timestep", function()
 			--If the weapon stops existing, break this loop
 			local ID = Proj.ID
 			if not IsValid(Wep) then
+				Proj.Vel = nil
 				fproj.PTbl[Wep] = nil
 				break
 			end
@@ -208,4 +227,20 @@ hook.Add("Tick", "base_fproj_timestep", function()
 			end
 		end
 	end
+end)
+
+if SERVER then return end
+
+net.Receive("fproj_shoot", function()
+	local ent = net.ReadEntity()
+	local tbl = net.ReadTable()
+	local start = net.ReadVector()
+	fproj.PTbl[ent] = fproj.PTbl[ent] or {}
+	local index = table.insert(fproj.PTbl[ent], tbl)
+
+	local ef = EffectData()
+	ef:SetEntity(ent)
+	ef:SetMaterialIndex(index)
+	ef:SetStart(start)
+	util.Effect(fproj.RTbl[tbl.ID].Effect, ef)
 end)

@@ -1,39 +1,60 @@
 function EFFECT:Init(Data)
+    self:SetRenderBounds(Vector(-64, -64, -64), Vector(64, 64, 64))
+    self:SetCollisionBounds(Vector(-64, -64, -64), Vector(64, 64, 64))
+
     self.Parent = Data:GetEntity()
-    self.tbl = fproj.PTbl[self.Parent][#fproj.PTbl[self.Parent]]
-    self:SetModel("models/props_junk/CinderBlock01a.mdl")
-    self.ParticleEmitter = ParticleEmitter(self:GetPos())
+    self.index = Data:GetMaterialIndex()
+    self.start = Data:GetStart()
+
+    self.tbl = fproj.PTbl[self.Parent][self.index]
+    if not self.tbl then return end
+
+    self.pos = self.start
+    self.vel = self.tbl.Vel
+
+    self.trail_points = self.trail_points or {}
+    for i = 1, 20 do
+        self.trail_points[i] = self.start
+    end
+
 end
 
 function EFFECT:Think()
+    if not self.Parent then return false end
     if not self.tbl then return self:Finish() end
     if not self.tbl.Vel then return self:Finish() end
 
-    self:SetPos(self.tbl.Pos + self.tbl.Vel)
+    self.pos = self.tbl.Pos or self.pos
+    self.vel = self.tbl.Vel or self.vel
+
+    self:SetPos(self.pos)
     return true
 end
 
 function EFFECT:Finish()
-    self.ParticleEmitter:Finish()
-    return false
+    if not self.trail_points then return false end
+    if self.trail_points[#self.trail_points] == self.trail_points[1] then
+        return false
+    end
+    return true
 end
 
 local mat = Material( "sprites/orangeflare1" )
+local mat_trail = Material("sprites/physbeama")
+local color_trail = Color(255, 153, 0)
 function EFFECT:Render()
-    if not self.tbl then return end
+    if not self.pos then return end
+    if not self.vel then return end
 
     render.SetMaterial(mat)
-    render.DrawQuadEasy(self.tbl.Pos + self.tbl.Vel, -EyeVector(), 3, 3, color_white)
-
-    local Light = self.ParticleEmitter:Add("sprites/orangeflare1.vmt", self:GetPos())
-    if Light then
-
-        Light:SetVelocity(self.tbl.Vel * 35)
-        Light:SetColor(255, 255, 255)
-        Light:SetDieTime(0.25)
-        Light:SetStartAlpha(255)
-        Light:SetEndAlpha(0)
-        Light:SetStartSize(3)
-        Light:SetEndSize(0)
-    end
+    render.DrawQuadEasy(self.pos + self.vel, -EyeVector(), 8, 8, color_white)
+    render.StartBeam(20)
+        render.SetMaterial(mat_trail)
+        for i = 20, 2, -1 do
+            self.trail_points[i] = self.trail_points[i - 1]
+            render.AddBeam(self.trail_points[i], 5 - i * 0.25, i * 0.5, color_trail)
+        end
+        self.trail_points[1] = self.pos + self.vel
+        render.AddBeam(self.trail_points[1], 5, 0, color_white)
+    render.EndBeam()
 end

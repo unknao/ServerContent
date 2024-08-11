@@ -67,17 +67,17 @@ function PANEL:Paint(w, h)
     surface.SetDrawColor(MICRO_SCOREBOARD.Frame_Color)
     surface.DrawRect(0, 30, w, h - 55)
 
-    surface.SetFont("MICRO_SCOREBOARDboard_16")
+    surface.SetFont("micro_scoreboard_player_panel_16")
     local Info1 = "Players: " .. player.GetCount() .. " / Map: " .. game.GetMap()
     local x1 = surface.GetTextSize(Info1)
     surface.DrawRect(0, h - 25, 16 + x1, 25)
-    draw.SimpleText(Info1, "MICRO_SCOREBOARDboard_16", 8, h - 5, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
+    draw.SimpleText(Info1, "micro_scoreboard_player_panel_16", 8, h - 5, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
 
 
     local Info2 = "Click to teleport to player"
     local x2 = surface.GetTextSize(Info2)
     surface.DrawRect(w - 16 - x2, h - 25, 16 + x2, 25)
-    draw.SimpleText(Info2, "MICRO_SCOREBOARDboard_16", w - 8, h - 5, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
+    draw.SimpleText(Info2, "micro_scoreboard_player_panel_16", w - 8, h - 5, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
 
     --draw.SimpleText(GetHostName(), "micro_scoreboard_hostname_32", w / 2, 30, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
     draw.SimpleTextOutlined(GetHostName(), "micro_scoreboard_hostname_32", w / 2, 0, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, color_black)

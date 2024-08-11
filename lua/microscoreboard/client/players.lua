@@ -236,17 +236,19 @@ end
 hook.Add("OnNW3ReceivedEntityValue", "MICRO_SCOREBOARDboard_flag_update", function(entindex, _, id, var)
 	if id ~= "country" and id ~= "country_code" then return end
 
-	for i = 1, #ms_player_panels do
-		local pnl = ms_player_panels[i]
-		if pnl:GetPlayerID() ~= entindex then continue end
+	timer.Simple(0, function()
+		for i = 1, #ms_player_panels do
+			local pnl = ms_player_panels[i]
+			if pnl:GetPlayerID() ~= entindex then continue end
 
-		if id == "country_code" then
-			pnl:UpdateFlag(var)
-		elseif id == "country" then
-			pnl:UpdateCountryName(var)
+			if id == "country_code" then
+				pnl:UpdateFlag(var)
+			elseif id == "country" then
+				pnl:UpdateCountryName(var)
+			end
+			break
 		end
-		break
-	end
+	end)
 end)
 
 vgui.Register("MS_PlayerInfo", PANEL, "DButton")
