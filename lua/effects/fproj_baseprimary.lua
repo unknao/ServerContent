@@ -6,7 +6,7 @@ function EFFECT:Init(Data)
     self.index = Data:GetMaterialIndex()
     self.start = Data:GetStart()
 
-    self.tbl = fproj.PTbl[self.Weapon][self.index]
+    self.tbl = FPROJ.active_projectiles[self.Weapon][self.index]
     if not self.tbl then return end
 
     self.pos = self.start
