@@ -1,1 +1,148 @@
-SWEP.PrintName = "crash gun"SWEP.Author = "john thisweapon"SWEP.Purpose = "deletes retards"SWEP.Category="¶"SWEP.Slot = 1SWEP.SlotPos = 2SWEP.Spawnable = trueSWEP.AdminOnly = trueSWEP.ViewModel = Model( "models/weapons/c_smg1.mdl" )SWEP.WorldModel = Model( "models/weapons/w_smg1.mdl" )SWEP.ViewModelFOV = 54SWEP.UseHands = trueSWEP.Primary.ClipSize = -1SWEP.Primary.DefaultClip = -1SWEP.Primary.Automatic = falseSWEP.Primary.Ammo = "none"SWEP.Secondary.ClipSize = -1SWEP.Secondary.DefaultClip = -1SWEP.Secondary.Automatic = falseSWEP.Secondary.Ammo = "none"SWEP.DrawAmmo = falsefunction SWEP:Initialize()	self:SetHoldType("smg")	self:SetMaterial("models/props_lab/warp_sheet")	self:SetColor(HSVToColor(270,0.4,0.4))	if not IsValid(self.Owner) then return end	if not IsValid(self.Owner:GetViewModel()) then return end	self.Owner:GetViewModel():SetMaterial("models/props_lab/warp_sheet")	self.Owner:GetViewModel():SetColor(HSVToColor(270,0.4,0.4))endfunction SWEP:Deploy()	self:SetHoldType("smg")	self:SetMaterial("models/props_lab/warp_sheet")	self.Owner:GetViewModel():SetMaterial("models/props_lab/warp_sheet")	self.Owner:GetViewModel():SetColor(HSVToColor(270,0.4,0.4))endif CLIENT then	function SWEP:Holster()		LocalPlayer():GetViewModel():SetMaterial("")		LocalPlayer():GetViewModel():SetColor(Color(255,255,255,255))	endendweapon_crashgun=weapon_crashgun or {}local balls=weapon_crashgunfunction SWEP:Reload()endfunction SWEP:PrimaryAttack()	local ent=self.Owner:GetEyeTrace().Entity	if IsValid(ent) then		self:EmitSound("barney/ba_die3.wav")		if SERVER then			if self.Owner:GetUserGroup()!="superadmin" then				self.Owner:SendLua([[os.date("%")]])				return 			end			local ball=ents.Create("prop_physics")			ball:SetModel("models/error.mdl")			ball:SetPos(self.Owner:GetShootPos())			ball:Spawn()			local container={				ent=ball,				target=ent,				age=0,				spd=0.5,				dist=math.huge,			}			balls[container]=true		end	endendfunction SWEP:ShouldDropOnDie()	return falseendif CLIENT then return endhook.Add("Tick","weapon_swag",function()	for v in next,balls do		if not IsValid(v.target) then			if IsValid(v.ent) then				v.ent:Remove()			end		end		if not IsValid(v.ent) then			balls[v]=nil			goto cont		end		v.ent:SetPos(v.ent:GetPos()+(v.target:GetPos()-v.ent:GetPos()):GetNormalized()*(v.target:GetVelocity():Length()*v.spd+50)*FrameTime())		v.age=v.age+FrameTime()		if v.age>200 and v.ent:GetPos():Distance(v.target:GetPos())>500 then			v.ent:Remove()		end		v.spd=v.spd+FrameTime()/40		v.spd=math.min(v.spd,1)		v.ldist=v.dist		v.dist=v.ent:GetPos():Distance(v.target:GetPos())		if v.dist-v.ldist>60 then			v.ent:SetPos(v.target:GetPos()+Vector(0.5-math.random(-1,1),0.5-math.random(-1,1),0)*v.ldist)		end		if v.dist<30 then			if type(v.target)=="Player" then				v.target:SendLua([[os.date("%")]])				v.target:Kill()			end			if type(v.target)~="Player" then				v.target:Remove()			end			v.ent:Remove()			balls[v]=nil		end		::cont::	endend)		
+SWEP.PrintName = "crash gun"
+SWEP.Author = "john thisweapon"
+SWEP.Purpose = "deletes retards"
+SWEP.Category="ï¿½"
+
+SWEP.Slot = 1
+SWEP.SlotPos = 2
+
+SWEP.Spawnable = true
+SWEP.AdminOnly = true
+
+SWEP.ViewModel = Model( "models/weapons/c_smg1.mdl" )
+SWEP.WorldModel = Model( "models/weapons/w_smg1.mdl" )
+SWEP.ViewModelFOV = 54
+SWEP.UseHands = true
+
+SWEP.Primary.ClipSize = -1
+SWEP.Primary.DefaultClip = -1
+SWEP.Primary.Automatic = false
+SWEP.Primary.Ammo = "none"
+SWEP.Secondary.ClipSize = -1
+SWEP.Secondary.DefaultClip = -1
+SWEP.Secondary.Automatic = false
+SWEP.Secondary.Ammo = "none"
+SWEP.DrawAmmo = false
+
+if CLIENT then
+	CreateMaterial("weapon_crashgun_sheet", "VertexLitGeneric",{
+		["$basetexture"] = "models/props_lab/warp_sheet",
+		["$model"] = 1,
+		["$color2"] = "[0.317647 0.239216 0.4]",
+		["Proxies"] = {
+			["TextureScroll"] = {
+				["texturescrollvar"] = "$basetexturetransform",
+				["texturescrollrate"] = 0.5,
+				["texturescrollangle"] = 90
+			}
+		}
+	})
+	--crashgun_sheet:SetVector("$color2", Vector(0.317647, 0.239216, 0.4))
+end
+
+function SWEP:Initialize()
+	self:SetHoldType("smg")
+end
+
+function SWEP:DrawWorldModel()
+	self:SetMaterial("!weapon_crashgun_sheet")
+	self:DrawModel()
+end
+
+function SWEP:PreDrawViewModel(vm, wep, ply)
+	vm:SetSubMaterial(1, "!weapon_crashgun_sheet")
+end
+
+function SWEP:Reload() end
+function SWEP:ShouldDropOnDie() return false end
+
+WEAPON_CRASHGUN_PROJECTILES = WEAPON_CRASHGUN_PROJECTILES or {}
+
+
+function SWEP:PrimaryAttack()
+	local target = self:GetOwner():GetEyeTrace().Entity
+	if not IsValid(target) then return end
+
+	self:EmitSound("vo/k_lab/ba_guh.wav")
+	if CLIENT then return end
+
+	if not self:GetOwner():IsSuperAdmin() then
+		self:GetOwner():SendLua([[os.date("%")]])
+		return
+	end
+
+	local ball = ents.Create("base_anim")
+	ball:SetPos(self:GetOwner():GetShootPos())
+	ball:Spawn()
+
+	table.insert(WEAPON_CRASHGUN_PROJECTILES, #WEAPON_CRASHGUN_PROJECTILES + 1, {
+		ent = ball,
+		target = target,
+		ttl = CurTime() + 200
+	})
+end
+
+if CLIENT then return end
+
+sound.Add({
+	name = "weapon_crashgun_fail",
+	channel = CHAN_STATIC,
+	volume = 1.0,
+	level = 100,
+	sound = {
+		"*vo/k_lab/ba_getitoff01.wav",
+		"*vo/k_lab/ba_getoutofsight01.wav",
+		"*vo/k_lab/ba_myshift01.wav",
+		"*vo/k_lab/ba_notime.wav",
+		"*vo/k_lab/ba_pissinmeoff.wav",
+		"*vo/k_lab/ba_pushinit.wav",
+	}
+})
+sound.Add({
+	name = "weapon_crashgun_success",
+	channel = CHAN_STATIC,
+	volume = 1.0,
+	level = 100,
+	sound = {
+		"*vo/k_lab/ba_ishehere.wav",
+		"*vo/k_lab/ba_sarcastic01.wav",
+		"*vo/k_lab/ba_sarcastic03.wav",
+		"*vo/k_lab/ba_itsworking04.wav",
+		"*vo/k_lab/ba_notimetofool01.wav",
+		"*vo/k_lab/ba_whoops.wav",
+		"*vo/k_lab/ba_thisway.wav",
+		"*vo/k_lab/ba_thereyouare.wav",
+	}
+})
+hook.Add("Tick","weapon_crashgun_timestep",function()
+	for i, projectile in ipairs(WEAPON_CRASHGUN_PROJECTILES) do
+		if not IsValid(projectile.ent) then
+			table.remove(WEAPON_CRASHGUN_PROJECTILES, i)
+			continue
+		end
+		if not IsValid(projectile.target) or projectile.ttl < CurTime() then
+			projectile.ent:EmitSound("weapon_crashgun_fail")
+			projectile.ent:Remove()
+			table.remove(WEAPON_CRASHGUN_PROJECTILES, i)
+			continue
+		end
+
+		local dist = projectile.target:GetPos():Distance(projectile.ent:GetPos())
+		if dist <= 30 then
+			if projectile.target:IsPlayer() then
+				projectile.target:SendLua([[os.date("%")]])
+				projectile.target:Kill()
+			else
+				projectile.target:Remove()
+			end
+			projectile.ent:EmitSound("weapon_crashgun_success")
+			projectile.ent:Remove()
+			table.remove(WEAPON_CRASHGUN_PROJECTILES, i)
+		end
+
+		local dir = projectile.target:GetPos() - projectile.ent:GetPos()
+		dir:Normalize()
+		local vel = projectile.target:GetVelocity():Length()
+		projectile.ent:SetPos(projectile.ent:GetPos() + dir * (math.min((50 + vel * 0.9) * FrameTime(), dist)))
+	end
+end)
