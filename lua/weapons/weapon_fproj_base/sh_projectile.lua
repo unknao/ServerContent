@@ -71,8 +71,6 @@ function FPROJ_LIB.RegisterProjectile(ID, Data, bOverride)
 	FPROJ.registered_projectiles[ID] = tbl
 end
 
-FPROJ_LIB.RegisterProjectile("fproj_baseprimary", {})
-
 hook.Add("Tick", "weapon_fproj_base_timestep", function()
 	for Wep, ActiveProjectile in pairs(FPROJ.active_projectiles) do
 		--If the weapon stops existing, bail
@@ -96,6 +94,7 @@ hook.Add("Tick", "weapon_fproj_base_timestep", function()
 
 			if tr.Hit then --Do the damage, kill the table entry
 				FPROJ.registered_projectiles[ID].OnImpact(Wep, Wep:GetOwner(), tr, Proj)
+				Proj.Pos = tr.HitPos
 				Proj.Vel = nil
 				table.remove(FPROJ.active_projectiles[Wep], I)
 			else --Keep iterating

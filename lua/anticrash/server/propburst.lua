@@ -15,4 +15,10 @@ local function CanSpawn(ply)
 	if ply._props_spawned_recently >= anticrash_prop_burst_limit:GetInt() then return false end
 end
 
-hook.Add("PlayerSpawnObject", tag, CanSpawn)
+hook.Add("PlayerSpawnProp", tag, CanSpawn)
+hook.Add("PlayerSpawnEffect", tag, CanSpawn)
+hook.Add("PlayerSpawnNPC", tag, CanSpawn)
+hook.Add("PlayerSpawnRagdoll", tag, CanSpawn)
+hook.Add("PlayerSpawnSENT", tag, CanSpawn)
+hook.Add("PlayerSpawnSWEP", tag, CanSpawn)
+hook.Add("PlayerSpawnVehicle", tag, CanSpawn)

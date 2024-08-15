@@ -4,7 +4,7 @@ local tMaxSize = {
 	Axis = 51380224,
 	Motor = 51380224,
 	AdvBallsocket = 51380224,
-	Ballsocket = 51380224
+	Ballsocket = 51380224,
 }
 
 hook.Add("CanConstrain","anticrash_constrain_distance", function(tData)
@@ -18,11 +18,11 @@ hook.Add("CanConstrain","anticrash_constrain_distance", function(tData)
 			return false
 		end
 	elseif Type == "Weld" then --Welds don't crash the server based on distance as easily
-		if Ent1:DistToSqr(Ent2) >= 268435456 and not Ent1:IsWorld() and not Ent2:IsWorld() then
+		if Ent1:GetPos():DistToSqr(Ent2:GetPos()) >= 268435456 and not Ent1:IsWorld() and not Ent2:IsWorld() then
 			return false
 		end
 	elseif Type == "Rope" then --Ropes tend to be unstable when their length is 0
-		if Ent1:LocalToWorld(LPos1) == Ent2:LocalToWorld(LPos2) and not Ent1:IsWorld() and not Ent2:IsWorld() then
+		if Ent1:LocalToWorld(LPos1) == Ent2:LocalToWorld(LPos2) then
 			return false
 		end
 	end

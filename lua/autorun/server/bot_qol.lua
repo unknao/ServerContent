@@ -32,7 +32,7 @@ end
 function BOT:StopShooting()
     if not self:IsBot() then return end
 
-    bot_actions[self] = function(cmd) cmd:SetButtons() end
+    bot_actions[self] = function(cmd) cmd:ClearButtons() end
     timer.Simple(0, function() bot_actions[self] = nil end)
 end
 
@@ -42,5 +42,11 @@ hook.Add("StartCommand", tag, function(ply, cmd)
 
     if bot_actions[ply] then
         bot_actions[ply](cmd)
+    end
+end)
+
+hook.Add("EntityRemoved", tag, function(ent)
+    if bot_actions[ent] then
+        bot_actions[ent] = nil
     end
 end)

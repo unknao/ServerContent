@@ -4,17 +4,20 @@ function EFFECT:Init(Data)
 
     self.Weapon = Data:GetEntity()
     self.index = Data:GetMaterialIndex()
-    self.start = Data:GetStart()
+    if self.Weapon:GetParent() == LocalPlayer() then
+        self.Muzzle = self.Weapon:GetParent():GetViewModel():GetAttachment(1).Pos
+    else
+        self.Muzzle = self.Weapon:GetAttachment(1).Pos
+    end
 
     self.tbl = FPROJ.active_projectiles[self.Weapon][self.index]
     if not self.tbl then return end
 
-    self.pos = self.start
-    self.vel = self.tbl.Vel
+    self.pos = self.Muzzle
 
     self.trail_points = self.trail_points or {}
-    for i = 1, 20 do
-        self.trail_points[i] = self.start
+    for i = 1, 10 do
+        self.trail_points[i] = self.pos
     end
 
 end
@@ -22,11 +25,14 @@ end
 function EFFECT:Think()
     if not IsValid(self.Weapon) then return false end
     if not IsValid(self.Weapon:GetParent()) then return false end
-    if not self.tbl then return self:Finish() end
+
+    for i = 10, 2, -1 do
+        self.trail_points[i] = self.trail_points[i - 1]
+    end
+    self.pos = self.tbl.Pos or self.pos
+    self.trail_points[1] = self.pos
     if not self.tbl.Vel then return self:Finish() end
 
-    self.pos = self.tbl.Pos or self.pos
-    self.vel = self.tbl.Vel or self.vel
     self:SetPos(self.pos)
     return true
 end
@@ -45,18 +51,16 @@ local mat_trail = Material("sprites/physbeama")
 local color_trail = Color(255, 153, 0)
 function EFFECT:Render()
     if not self.pos then return end
-    if not self.vel then return end
 
-    render.StartBeam(20)
+
+    render.StartBeam(10)
         render.SetMaterial(mat_trail)
-        for i = 20, 2, -1 do
-            self.trail_points[i] = self.trail_points[i - 1]
-            render.AddBeam(self.trail_points[i], 5 - i * 0.25, i * 0.5, color_trail)
+        for i = 10, 1, -1 do
+            render.AddBeam(self.trail_points[i], 5 - i * 0.5, i * 0.5, color_trail)
         end
-        self.trail_points[1] = self.pos + self.vel
-        render.AddBeam(self.trail_points[1], 5, 0, color_white)
     render.EndBeam()
     if self.finishing then return end
+
     render.SetMaterial(mat)
-    render.DrawQuadEasy(self.pos + self.vel, -EyeVector(), 8, 8, color_white)
+    render.DrawQuadEasy(self.pos, -EyeVector(), 8, 8, color_white)
 end

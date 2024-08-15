@@ -30,7 +30,9 @@ SWEP.DrawAmmo = true
 SWEP.AdminOnly = false
 
 function SWEP:Initialize()
+	FPROJ_LIB.RegisterProjectile("fproj_baseprimary", {})
 	self:SetHoldType("ar2")
+	self.AutomaticFrameAdvance = true
 end
 
 function SWEP:RegisterProjectile(ID, Data, bOverride)
@@ -60,7 +62,7 @@ function SWEP:CreateProjectile(BulletData)
 		net.Start("fproj_shoot")
 		net.WriteEntity(self)
 		net.WriteTable(BulletData)
-		net.WriteVector(BulletData.Pos + BulletData.Vel)
+		net.WriteVector(self:GetAttachment(1).Pos)
 		if self:GetOwner():IsPlayer() then --Send to everyone except the weapon owner
 			local rf = RecipientFilter()
 			rf:AddAllPlayers()
@@ -74,34 +76,59 @@ function SWEP:CreateProjectile(BulletData)
 
 	local ef = EffectData()
 	ef:SetEntity(self)
-	ef:SetStart(BulletData.Pos + BulletData.Vel)
 	ef:SetMaterialIndex(index)
 	util.Effect(FPROJ.registered_projectiles[BulletData.ID].Effect, ef, true, true)
 end
+
+sound.Add({
+	name = "fproj_base_shoot1",
+	channel = CHAN_WEAPON,
+	volume = 1.0,
+	level = 100,
+	pitch = {120, 130},
+	sound = ")weapons/fiveseven/fiveseven-1.wav"
+})
+sound.Add({
+	name = "fproj_base_shoot2",
+	channel = CHAN_AUTO,
+	volume = 1.0,
+	level = 100,
+	pitch = {150, 160},
+	sound = ")weapons/aug/aug-1.wav"
+})
 
 function SWEP:PrimaryAttack()
 	if not self:CanPrimaryAttack() then
 		return
 	end
 	self:TakePrimaryAmmo(1)
-	self:SetNextPrimaryFire(CurTime() + ((self:Clip1() == 0) and 0.5 or 0.09))
-	self:GetOwner():ViewPunch(Angle(self.Primary.Recoil, 0, 0))
-
+	self:SetNextPrimaryFire(CurTime() + 0.09)
+	--self:GetOwner():ViewPunch(Angle(self.Primary.Recoil, 0, 0))
 	self:ShootEffects()
-	self:EmitSound("weapons/fiveseven/fiveseven-1.wav", 100, math.random(120, 130), 0.8, CHAN_STATIC)
-	self:EmitSound("^weapons/aug/aug-1.wav", 90, math.random(150, 160), 0.6, CHAN_STATIC)
 
-	local normal = self:GetRecoilCompensatedNormal()
+	self:EmitSound("fproj_base_shoot1")
+	self:EmitSound("fproj_base_shoot2")
+	--print(SNDLVL_GUNFIRE)
+
 	local VecRandom = Vector(
 		util.SharedRandom("fproj_base_x", -0.005, 0.005),
 		util.SharedRandom("fproj_base_y", -0.005, 0.005),
 		util.SharedRandom("fproj_base_z", -0.005, 0.005)
 	)
+	local pos
+	if CLIENT and  not self:GetOwner():ShouldDrawLocalPlayer() then
+		pos = self:GetOwner():GetViewModel():GetAttachment(1).Pos
+	else
+		print(self)
+		pos = self:GetAttachment(1).Pos
+	end
 
+	local aim_vector = self:GetOwner():GetEyeTrace().HitPos - pos
+	aim_vector:Normalize()
 	self:CreateProjectile({
 		ID = "fproj_baseprimary",
-		Pos = self:GetOwner():ShootPos(),
-		Vel = (normal:Forward() + VecRandom) * 15000 * engine.TickInterval()
+		Pos = pos,
+		Vel = (aim_vector + VecRandom) * 15000 * engine.TickInterval()
 	})
 end
 
