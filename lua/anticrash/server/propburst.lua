@@ -22,13 +22,11 @@ local function CountUp(ply, type)
 
 	if not ANTICRASH_ENTITY_BURST_DATA[ply][type] then
 		ANTICRASH_ENTITY_BURST_DATA[ply][type] = {1, CurTime()}
-		print(ply, type, 1)
 		return
 	end
 
 	if ANTICRASH_ENTITY_BURST_DATA[ply][type][2] == CurTime() then
 		ANTICRASH_ENTITY_BURST_DATA[ply][type][1] = ANTICRASH_ENTITY_BURST_DATA[ply][type][1] + 1
-		print(ply, type, ANTICRASH_ENTITY_BURST_DATA[ply][type][1])
 	else
 		ANTICRASH_ENTITY_BURST_DATA[ply][type] = nil
 	end
@@ -44,7 +42,6 @@ local function CanSpawn(ply, type)
 		return
 	end
 	if spawned[1] >= anticrash_entity_burst_limit:GetInt() then
-		print(ply, type, "stopped")
 		return false
 	end
 end
