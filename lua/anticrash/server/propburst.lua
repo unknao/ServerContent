@@ -46,6 +46,7 @@ local function CanSpawn(ply, type)
 	end
 end
 
+--Don't count prop spawns in PlayerSpawnX hooks, it wont be accurate
 hook.Add("PlayerSpawnProp", tag, function(ply)
 	return CanSpawn(ply, "prop")
 end)
