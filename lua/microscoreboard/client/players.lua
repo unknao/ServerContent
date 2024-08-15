@@ -212,7 +212,7 @@ function PANEL:Paint(w, h)
 	draw.SimpleText(ply:IsBot() and "BOT" or ply:Ping(), "micro_scoreboard_player_panel_16", w - 5, 10, MICRO_SCOREBOARD.Player_PingColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 
 	if ply:IsBot() then return end
-	local playtime = ply:nw3GetInt("Playtime") + (RealTime() - ply:nw3GetInt("Joined"))
+	local playtime = ply:nw3GetInt("Playtime") + (CurTime() - ply:nw3GetInt("Joined"))
 
 	local format = "h"
 	if playtime < 3600 then
