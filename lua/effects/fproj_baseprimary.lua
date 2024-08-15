@@ -3,8 +3,10 @@ function EFFECT:Init(Data)
     self:SetCollisionBounds(Vector(-64, -64, -64), Vector(64, 64, 64))
 
     self.Weapon = Data:GetEntity()
+    if not IsValid(self.Weapon) then return end
+
     self.index = Data:GetMaterialIndex()
-    if self.Weapon:GetParent() == LocalPlayer() then
+    if self.Weapon:GetParent() == LocalPlayer() and not LocalPlayer():ShouldDrawLocalPlayer() then
         self.Muzzle = self.Weapon:GetParent():GetViewModel():GetAttachment(1).Pos
     else
         self.Muzzle = self.Weapon:GetAttachment(1).Pos

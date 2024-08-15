@@ -131,10 +131,7 @@ end
 
 function svg.Draw(ID, x, y, color)
 	local svgdata = svg.Cache[ID]
-	if not istable(svgdata) then
-		ErrorNoHalt("Attempted to draw an uncached SVG '",ID,"'")
-		return
-	end
+	if not istable(svgdata) then return end
 
 	surface.SetDrawColor(color or color_white)
 

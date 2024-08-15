@@ -79,7 +79,6 @@ function SWEP:PrimaryAttack()
 	crossbow_bolt:SetAngles(Vel:Angle())
 	crossbow_bolt:SetVelocity(Vel * 5000)
 	crossbow_bolt:Input("SetDamage", nil, nil, 20)
-	PrintTable(crossbow_bolt:GetKeyValues())
 	if not crossbow_bolt:IsInWorld() then crossbow_bolt:Remove() return end
 
 	crossbow_bolt:Spawn()

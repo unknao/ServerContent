@@ -20,6 +20,7 @@ SWEP.Primary.DefaultClip = 30
 SWEP.Primary.Automatic = true
 SWEP.Primary.Ammo = "Pistol"
 SWEP.Primary.Recoil = -0.8
+SWEP.AutomaticFrameAdvance = true
 
 SWEP.Secondary.ClipSize    = -1
 SWEP.Secondary.DefaultClip = -1
@@ -32,13 +33,7 @@ SWEP.AdminOnly = false
 function SWEP:Initialize()
 	FPROJ_LIB.RegisterProjectile("fproj_baseprimary", {})
 	self:SetHoldType("ar2")
-	self.AutomaticFrameAdvance = true
 end
-
-function SWEP:RegisterProjectile(ID, Data, bOverride)
-
-end
-
 
 function SWEP:Deploy()
 	self:SendWeaponAnim(ACT_VM_DRAW)
@@ -68,7 +63,7 @@ function SWEP:CreateProjectile(BulletData)
 			rf:AddAllPlayers()
 			rf:RemovePlayer(self:GetOwner())
 			net.Send(rf)
-		else --Send to everyone except the weapon owner
+		else
 			net.Broadcast()
 		end
 		return
@@ -116,10 +111,9 @@ function SWEP:PrimaryAttack()
 		util.SharedRandom("fproj_base_z", -0.005, 0.005)
 	)
 	local pos
-	if CLIENT and  not self:GetOwner():ShouldDrawLocalPlayer() then
+	if CLIENT and not self:GetOwner():ShouldDrawLocalPlayer() then
 		pos = self:GetOwner():GetViewModel():GetAttachment(1).Pos
 	else
-		print(self)
 		pos = self:GetAttachment(1).Pos
 	end
 
@@ -145,4 +139,13 @@ function SWEP:DoImpactEffect(tr, dmgNum)
 	ef:SetDamageType(dmgNum)
 	ef:SetHitBox(tr.HitGroup)
 	util.Effect("Impact", ef)
+end
+
+function SWEP:DrawWorldModel()
+	self:SetMaterial("models/props_lab/security_screens")
+	self:DrawModel()
+end
+
+function SWEP:PreDrawViewModel(vm, wep, ply)
+	vm:SetSubMaterial(1, "models/props_lab/security_screens")
 end
