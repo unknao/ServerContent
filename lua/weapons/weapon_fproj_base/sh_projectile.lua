@@ -28,7 +28,7 @@ function FPROJ_LIB.RegisterProjectile(ID, Data, bOverride)
 	local tbl = {
 		Gravity = Data.Gravity or physenv.GetGravity() * 0.0105 * engine.TickInterval(),
 		Drag = Data.Drag or 0.999, -- How much velocity it keeps after each timestep (ranging from 0 to 1)
-		ForceMul = Data.ForceMul or 40, --How much force will it impart on physics entities
+		ForceMul = Data.ForceMul or 100, --How much force will it impart on physics entities
 		Effect = Data.Effect or "fproj_baseprimary",
 		MinFalloffDist = Data.MinFalloffDist or 600, --Range at which the bullet begins damage falloff
 		MaxFalloffDist = Data.MaxFalloffDist or 900, --Range at which the bullet is at max damage falloff
@@ -57,10 +57,10 @@ function FPROJ_LIB.RegisterProjectile(ID, Data, bOverride)
 		Dmg:SetDamageType(DMG_BULLET)
 
 		local phys = tr.Entity:GetPhysicsObject()
-		if phys and SERVER then
+		if IsValid(phys) then
 			phys:ApplyForceOffset(tr.Normal * ForceMul * Dmg:GetDamage() + ProjData.Vel, tr.HitPos)
 		elseif tr.Entity:IsPlayer() or tr.Entity:IsNPC() then
-			tr.Entity:SetVelocity(tr.Normal * ForceMul * Dmg:GetDamage() * 1000 + ProjData.Vel)
+			tr.Entity:SetVelocity(tr.Normal * ForceMul * Dmg:GetDamage() * 40000 + ProjData.Vel)
 		end
 
 		Wep:DoImpactEffect(tr, DMG_BULLET)

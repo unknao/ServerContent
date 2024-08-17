@@ -19,8 +19,6 @@ SWEP.Primary.ClipSize = 30
 SWEP.Primary.DefaultClip = 30
 SWEP.Primary.Automatic = true
 SWEP.Primary.Ammo = "Pistol"
-SWEP.Primary.Recoil = -0.8
-SWEP.AutomaticFrameAdvance = true
 
 SWEP.Secondary.ClipSize    = -1
 SWEP.Secondary.DefaultClip = -1
@@ -34,6 +32,7 @@ function SWEP:Initialize()
 	FPROJ_LIB.RegisterProjectile("fproj_baseprimary", {})
 	self:SetHoldType("ar2")
 	self:AddEffects(EF_FOLLOWBONE)
+	self.random_spread_seed = Vector(math.Rand(0, 10000), math.Rand(0, 10000), math.Rand(0, 10000))
 end
 
 function SWEP:Deploy()
@@ -48,13 +47,6 @@ function SWEP:Deploy()
 	self:SetParent(self:GetOwner(), bone_id)
 	self:SetLocalPos(Vector(12.5, -1, -12))
 	self:SetLocalAngles(Angle(0, 0, 180))
-end
-
-function SWEP:GetRecoilCompensatedNormal()
-	local owner = self:GetOwner()
-	local normal = owner:EyeAngles()
-	normal:RotateAroundAxis(owner:EyeAngles():Right(), -owner:GetViewPunchAngles()[1])
-	return normal
 end
 
 function SWEP:CreateProjectile(BulletData)
@@ -102,24 +94,23 @@ sound.Add({
 	sound = ")weapons/aug/aug-1.wav"
 })
 
+local sound_1 = Sound("fproj_base_shoot1")
+local sound_2 = Sound("fproj_base_shoot2")
 local random_spread = Vector(0, 0, 0)
 function SWEP:PrimaryAttack()
-	if not self:CanPrimaryAttack() then
-		return
-	end
+	if not self:CanPrimaryAttack() then return end
 	self:TakePrimaryAmmo(1)
 	self:SetNextPrimaryFire(CurTime() + 0.09)
-	--self:GetOwner():ViewPunch(Angle(self.Primary.Recoil, 0, 0))
 	self:ShootEffects()
 
-	self:EmitSound("fproj_base_shoot1")
-	self:EmitSound("fproj_base_shoot2")
+	self:EmitSound(sound_1)
+	self:EmitSound(sound_2)
 	--print(SNDLVL_GUNFIRE)
 
 	random_spread:SetUnpacked(
-		util.SharedRandom("fproj_base_x", -0.005, 0.005),
-		util.SharedRandom("fproj_base_y", -0.005, 0.005),
-		util.SharedRandom("fproj_base_z", -0.005, 0.005)
+		util.SharedRandom(self.random_spread_seed.x, -0.005, 0.005),
+		util.SharedRandom(self.random_spread_seed.y, -0.005, 0.005),
+		util.SharedRandom(self.random_spread_seed.z, -0.005, 0.005)
 	)
 	local pos
 	if CLIENT and not self:GetOwner():ShouldDrawLocalPlayer() then
@@ -140,6 +131,8 @@ function SWEP:PrimaryAttack()
 end
 
 function SWEP:SecondaryAttack() end
+
+function SWEP:ShouldDropOnDie() return true end
 
 function SWEP:DoImpactEffect(tr, dmgNum)
 	if not IsFirstTimePredicted() then return end
