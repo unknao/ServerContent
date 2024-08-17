@@ -12,3 +12,17 @@ net.Receive("fproj_shoot", function()
 	ef:SetMaterialIndex(index)
 	util.Effect(FPROJ.registered_projectiles[tbl.ID].Effect, ef)
 end)
+
+function SWEP:DrawWorldModel()
+	self:SetMaterial("models/props_lab/security_screens")
+	self:DrawModel()
+end
+
+function SWEP:PreDrawViewModel(vm, wep, ply)
+	vm:SetSubMaterial(1, "models/props_lab/security_screens")
+
+end
+
+function SWEP:ViewModelDrawn(vm)
+	vm:SetSubMaterial(1, "")
+end

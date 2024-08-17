@@ -33,11 +33,21 @@ SWEP.AdminOnly = false
 function SWEP:Initialize()
 	FPROJ_LIB.RegisterProjectile("fproj_baseprimary", {})
 	self:SetHoldType("ar2")
+	self:AddEffects(EF_FOLLOWBONE)
 end
 
 function SWEP:Deploy()
 	self:SendWeaponAnim(ACT_VM_DRAW)
 	self:SetNextPrimaryFire(CurTime() + 1)
+
+	if not SERVER then return end
+	local bone_id = self:GetOwner():LookupBone("ValveBiped.Bip01_R_Hand")
+	if not bone_id then return end
+
+	self:SetMoveType(MOVETYPE_NONE)
+	self:SetParent(self:GetOwner(), bone_id)
+	self:SetLocalPos(Vector(12.5, -1, -12))
+	self:SetLocalAngles(Angle(0, 0, 180))
 end
 
 function SWEP:GetRecoilCompensatedNormal()
@@ -92,6 +102,7 @@ sound.Add({
 	sound = ")weapons/aug/aug-1.wav"
 })
 
+local random_spread = Vector(0, 0, 0)
 function SWEP:PrimaryAttack()
 	if not self:CanPrimaryAttack() then
 		return
@@ -105,7 +116,7 @@ function SWEP:PrimaryAttack()
 	self:EmitSound("fproj_base_shoot2")
 	--print(SNDLVL_GUNFIRE)
 
-	local VecRandom = Vector(
+	random_spread:SetUnpacked(
 		util.SharedRandom("fproj_base_x", -0.005, 0.005),
 		util.SharedRandom("fproj_base_y", -0.005, 0.005),
 		util.SharedRandom("fproj_base_z", -0.005, 0.005)
@@ -117,13 +128,15 @@ function SWEP:PrimaryAttack()
 		pos = self:GetAttachment(1).Pos
 	end
 
+
 	local aim_vector = self:GetOwner():GetEyeTrace().HitPos - pos
 	aim_vector:Normalize()
 	self:CreateProjectile({
 		ID = "fproj_baseprimary",
 		Pos = pos,
-		Vel = (aim_vector + VecRandom) * 15000 * engine.TickInterval()
+		Vel = (aim_vector + random_spread) * 15000 * engine.TickInterval()
 	})
+	if not IsFirstTimePredicted() then return end
 end
 
 function SWEP:SecondaryAttack() end
@@ -141,11 +154,3 @@ function SWEP:DoImpactEffect(tr, dmgNum)
 	util.Effect("Impact", ef)
 end
 
-function SWEP:DrawWorldModel()
-	self:SetMaterial("models/props_lab/security_screens")
-	self:DrawModel()
-end
-
-function SWEP:PreDrawViewModel(vm, wep, ply)
-	vm:SetSubMaterial(1, "models/props_lab/security_screens")
-end
