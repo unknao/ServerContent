@@ -1,5 +1,6 @@
 local tag = "MassUndo"
-local iUndoKey = input.GetKeyCode(input.LookupBinding("undo"))
+local undo_aliases = input.LookupBinding("undo") or input.LookupBinding("gmod_undo")
+local iUndoKey = input.GetKeyCode(undo_aliases)
 
 hook.Add("PlayerButtonDown", tag, function(_, iButton)
 	if iButton ~= iUndoKey then return end

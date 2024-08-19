@@ -9,6 +9,12 @@ hook.Add("PlayerChangedTeam", tag, function(ply, _, new_team)
     ply:SetWeaponColor(team_color)
 end)
 
+hook.Add("PlayerInitialSpawn", tag, function(ply)
+    if not ply:IsBot() then return end
+
+    ply.bot_auto_revive = true
+end)
+
 hook.Add("PlayerSpawn", tag, function(ply)
     if not ply:IsBot() then return end
 
@@ -17,6 +23,21 @@ hook.Add("PlayerSpawn", tag, function(ply)
         local team_color = Vector(c.r / 255, c.g / 255, c.b / 255)
         ply:SetPlayerColor(team_color)
         ply:SetWeaponColor(team_color)
+    end)
+end)
+
+hook.Add("PlayerDeath", tag, function(ply)
+    if not ply:IsBot() then return end
+    if not ply.bot_auto_revive then return end
+
+    local pos = ply:GetPos()
+    local ang = ply:GetAngles()
+    timer.Simple(3, function()
+        if ply:Alive() then return end
+
+        ply:Spawn()
+        ply:SetPos(pos)
+        ply:SetEyeAngles(ang)
     end)
 end)
 

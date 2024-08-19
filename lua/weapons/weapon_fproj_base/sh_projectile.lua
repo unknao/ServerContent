@@ -64,8 +64,9 @@ function FPROJ_LIB.RegisterProjectile(ID, Data, bOverride)
 		end
 
 		Wep:DoImpactEffect(tr, DMG_BULLET)
+		if CLIENT then return end
 
-		tr.Entity:DispatchTraceAttack(Dmg, tr)
+		tr.Entity:TakeDamageInfo(Dmg)
 	end
 
 	FPROJ.registered_projectiles[ID] = tbl

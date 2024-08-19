@@ -33,7 +33,6 @@ function PANEL:AddPlayerPanel(ply)
 end
 
 function PANEL:Init()
-    self.id = table.insert(ms_frames, self)
     self:SetSize(700, 0)
     self:Center()
     self:DockPadding(5, 35, 5, 30)
@@ -61,6 +60,7 @@ function PANEL:Init()
         self:AddPlayerPanel(ply)
     end
     self:UpdateSize(player.GetCount())
+    self.id = table.insert(ms_frames, self)
 end
 
 function PANEL:Paint(w, h)
@@ -73,14 +73,13 @@ function PANEL:Paint(w, h)
     surface.DrawRect(0, h - 25, 16 + x1, 25)
     draw.SimpleText(Info1, "micro_scoreboard_player_panel_16", 8, h - 5, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
 
-
     local Info2 = "Click to teleport to player"
     local x2 = surface.GetTextSize(Info2)
     surface.DrawRect(w - 16 - x2, h - 25, 16 + x2, 25)
     draw.SimpleText(Info2, "micro_scoreboard_player_panel_16", w - 8, h - 5, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
 
     --draw.SimpleText(GetHostName(), "micro_scoreboard_hostname_32", w / 2, 30, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
-    draw.SimpleTextOutlined(GetHostName(), "micro_scoreboard_hostname_32", w / 2, 0, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, color_black)
+    draw.SimpleTextOutlined(GetHostName(), "micro_scoreboard_hostname_32", w / 2, 0, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, MICRO_SCOREBOARD.Frame_Color)
 end
 
 function PANEL:Open()

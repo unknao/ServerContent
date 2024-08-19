@@ -29,7 +29,7 @@ SWEP.DrawAmmo = true
 SWEP.AdminOnly = false
 
 function SWEP:Initialize()
-	FPROJ_LIB.RegisterProjectile("fproj_baseprimary", {})
+	FPROJ_LIB.RegisterProjectile("fproj_baseprimary", {}, true)
 	self:SetHoldType("ar2")
 	self:AddEffects(EF_FOLLOWBONE)
 	self.random_spread_seed = Vector(math.Rand(0, 10000), math.Rand(0, 10000), math.Rand(0, 10000))

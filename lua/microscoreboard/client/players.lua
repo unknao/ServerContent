@@ -88,7 +88,6 @@ end
 
 local ms_player_panels = {}
 function PANEL:Init()
-	self.id = table.insert(ms_player_panels, self)
 	self:SetTall(20)
 	self:SetText("")
 	self:DockMargin(0, 0, 0, 3)
@@ -105,6 +104,7 @@ function PANEL:Init()
 	self.hovered = self:IsHovered() or self:IsChildHovered()
 
 	self.RankPadding = 0
+	self.id = table.insert(ms_player_panels, self)
 end
 
 function PANEL:DoClick()
@@ -130,7 +130,7 @@ function PANEL:SetPlayer(ply)
 	self.gradientColor = GAMEMODE:GetTeamColor(ply)
 	self.gradientColor.a = 100
 
-	self.buttonProfile.DoClick = function() self.ply:ShowbuttonProfile() end
+	self.buttonProfile.DoClick = function() self.ply:ShowProfile() end
 	self.buttonProfileTooltip = self.buttonProfile:Add("MS_TooltipImage")
 	self.buttonProfileTooltip:SetPlayer(self.ply)
 	self.buttonProfile:SetTooltipPanel(self.buttonProfileTooltip)
@@ -235,9 +235,20 @@ end
 hook.Add("OnNW3ReceivedEntityValue", "MICRO_SCOREBOARDboard_flag_update", function(entindex, _, id, var)
 	if id ~= "country" and id ~= "country_code" then return end
 
-	timer.Simple(0, function()
+	coroutine.resume(coroutine.create(function()
+		local running = coroutine.running()
 		for i = 1, #ms_player_panels do
 			local pnl = ms_player_panels[i]
+
+			if not pnl.GetPlayerID then
+				timer.Create("microscoreboard_flag_coroutine_" .. entindex, 0.2, 0, function()
+					if pnl.GetPlayerID then
+						timer.Remove("microscoreboard_flag_coroutine_" .. entindex)
+						coroutine.resume(running)
+					end
+				end)
+				coroutine.yield()
+			end
 			if pnl:GetPlayerID() ~= entindex then continue end
 
 			if id == "country_code" then
@@ -247,7 +258,9 @@ hook.Add("OnNW3ReceivedEntityValue", "MICRO_SCOREBOARDboard_flag_update", functi
 			end
 			break
 		end
-	end)
+	end))
 end)
+
+
 
 vgui.Register("MS_PlayerInfo", PANEL, "DButton")
