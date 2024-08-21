@@ -8,6 +8,7 @@ surface.CreateFont("micro_scoreboard_player_panel_16",{
 
 --Icons
 svg.Generate("MS_Clock", 14, 14, [[<!-- icon666.com - MILLIONS vector ICONS FREE --><svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 426.667 426.667" style="enable-background:new 0 0 426.667 426.667;" xml:space="preserve"><g><g><path d="M213.227,0C95.36,0,0,95.467,0,213.333s95.36,213.333,213.227,213.333s213.44-95.467,213.44-213.333S331.093,0,213.227,0z M213.333,384c-94.293,0-170.667-76.373-170.667-170.667S119.04,42.667,213.333,42.667S384,119.04,384,213.333 S307.627,384,213.333,384z"/></g></g><g><g><polygon points="224,218.667 224,106.667 192,106.667 192,234.667 303.893,301.867 320,275.627 "/></g></g></svg>]])
+svg.Generate("MS_Timeout", 14, 14, [[<!-- icon666.com - MILLIONS vector ICONS FREE --><svg id="Capa_1" enable-background="new 0 0 512 512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><g><path d="m507.612 4.388c-5.86-5.85-15.36-5.85-21.22 0l-98.808 98.933-53.309-53.309c-11.082-11.082-27.801-10.635-38.044-.393l-52.984 52.984c-5.858 5.858-5.858 15.356 0 21.213l144.937 144.938c5.858 5.858 15.356 5.858 21.213 0l52.983-52.984c10.397-10.397 10.397-27.253 0-37.65l-53.587-53.587 98.817-98.923c5.853-5.862 5.853-15.362.002-21.222zm-125.12 176.68c-2.93 2.93-6.77 4.39-10.61 4.39s-7.67-1.46-10.6-4.39l-30.35-30.35c-5.86-5.85-5.86-15.35 0-21.21s15.36-5.86 21.21 0l30.35 30.35c5.86 5.85 5.86 15.35 0 21.21z" fill="#000000" style="fill: rgb(80, 0, 0);"></path><path d="m335.794 274.358c-6.156-6.156-16.126-6.156-22.282 0l-23.553 23.563-75.87-75.87 23.553-23.563c6.156-6.156 6.156-16.126 0-22.282s-16.136-6.156-22.282 0l-23.553 23.564-24.183-24.131c-4.108-4.097-10.747-4.087-14.844.01l-16.126 16.119c-4.119 4.117-4.103 10.798.036 14.895 4.071 4.031-.547-.577 29.411 29.381 148.978 148.978 134.853 134.847 139.272 139.284 4.099 4.115 10.76 4.123 14.868.018l16.152-16.137c4.097-4.097 4.097-10.757 0-14.855l-24.152-24.152 23.553-23.563c6.156-6.145 6.156-16.125 0-22.281z" fill="#000000" style="fill: rgb(80, 0, 0);"></path><path d="m44.128 419.427c-3.85 3.897-3.848 10.167.005 14.061l6.017 6.082-45.53 45.53c-6.16 6.15-6.16 16.13 0 22.28 3.07 3.08 7.11 4.62 11.14 4.62s8.06-1.54 11.14-4.62l45.53-45.53 6.031 6.039c3.889 3.895 10.195 3.914 14.108.043l28.502-28.192-48.8-48.8z" fill="#000000" style="fill: rgb(80, 0, 0);"></path><path d="m84.781 286.94c-3.217 3.218-4.8 7.722-4.302 12.245l6.842 62.231 63.263 63.263 61.017 6.709c4.444.489 8.874-1.03 12.083-4.143l45.202-43.841-140.29-140.289z" fill="#000000" style="fill: rgb(80, 0, 0);"></path></g></svg>]])
 local gradient_up = Material("vgui/gradient-r")
 local PlayerVolumeColor = Color(159, 189, 255)
 
@@ -225,9 +226,10 @@ function PANEL:Paint(w, h)
 	--Text
 	draw.SimpleText(ply:Name(), "micro_scoreboard_player_panel_16", 25 + self.RankPadding, 10, color_black, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
 
-	draw.SimpleText(ply:IsBot() and "BOT" or ply:Ping(), "micro_scoreboard_player_panel_16", w - 5, 10, MICRO_SCOREBOARD.Player_PingColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
-
-	if ply:IsBot() then return end
+	if ply:IsBot() then
+		draw.SimpleText("BOT", "micro_scoreboard_player_panel_16", w - 5, 10, MICRO_SCOREBOARD.Player_PingColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+		return
+	end
 	local playtime = ply:nw3GetInt("Playtime") + (CurTime() - ply:nw3GetInt("Joined"))
 
 	local format = "h"
@@ -240,8 +242,13 @@ function PANEL:Paint(w, h)
 		playtime = math.floor(playtime / 3600)
 	end
 	draw.SimpleText(playtime .. format, "micro_scoreboard_player_panel_16", w - 80, 10, color_black, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
-
 	svg.Draw("MS_Clock", w - 76, 3)
+
+	if timeout then
+		svg.Draw("MS_Timeout", w - 18, 3)
+	else
+		draw.SimpleText(ply:Ping(), "micro_scoreboard_player_panel_16", w - 5, 10, MICRO_SCOREBOARD.Player_PingColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+	end
 end
 
 function PANEL:OnRemove()
@@ -251,22 +258,20 @@ end
 hook.Add("OnNW3ReceivedEntityValue", "micro_scoreboard_flag_update", function(entindex, _, id, var)
 	if id ~= "country" and id ~= "country_code" and id ~= "user_group" then return end
 
-	timer.Simple(0, function()
-		for i = 1, #ms_player_panels do
-			local pnl = ms_player_panels[i]
-			local pnl_tbl = pnl:GetTable()
-			if pnl_tbl.GetPlayerID(pnl) ~= entindex then continue end
+	for i = 1, #ms_player_panels do
+		local pnl = ms_player_panels[i]
+		local pnl_tbl = pnl:GetTable()
+		if pnl_tbl.GetPlayerID(pnl) ~= entindex then continue end
 
-			if id == "country_code" then
-				pnl_tbl.UpdateFlag(pnl, var)
-			elseif id == "country" then
-				pnl_tbl.UpdateCountryName(pnl, var)
-			elseif id == "user_group" then
-				pnl_tbl.SetRank(pnl, var)
-			end
-			break
+		if id == "country_code" then
+			pnl_tbl.UpdateFlag(pnl, var)
+		elseif id == "country" then
+			pnl_tbl.UpdateCountryName(pnl, var)
+		elseif id == "user_group" then
+			pnl_tbl.SetRank(pnl, var)
 		end
-	end)
+		break
+	end
 end)
 
 
