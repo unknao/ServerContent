@@ -256,7 +256,7 @@ end
 --"Get" Functions
 for k, v in pairs(nw3storage.Variables) do
     nw3["GetGlobal" .. k] = function(ID, Fallback)
-        if nw3storage.Variables[k][ID] then
+        if nw3storage.Variables[k] and nw3storage.Variables[k][ID] then
             return nw3storage.Variables[k][ID]
         else
             return Fallback or tFallbacks[k]
@@ -264,7 +264,7 @@ for k, v in pairs(nw3storage.Variables) do
     end
 
     ENTITY["nw3Get" .. k] = function(self, ID, Fallback)
-        if nw3storage.Entities[self:EntIndex()][k] and nw3storage.Entities[self:EntIndex()][k][ID] then
+        if nw3storage.Entities[self:EntIndex()] and nw3storage.Entities[self:EntIndex()][k] and nw3storage.Entities[self:EntIndex()][k][ID] then
             return nw3storage.Entities[self:EntIndex()][k][ID]
         else
             return Fallback or tFallbacks[k]

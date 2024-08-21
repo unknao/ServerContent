@@ -51,6 +51,7 @@ end
 
 function SWEP:CreateProjectile(BulletData)
 	if not IsFirstTimePredicted() then return end
+	if SERVER then self:GetOwner():LagCompensation(true) end
 
 	BulletData.DistTravelledSqr = 0
 	FPROJ.active_projectiles[self] = FPROJ.active_projectiles[self] or {}
@@ -68,6 +69,7 @@ function SWEP:CreateProjectile(BulletData)
 		else
 			net.Broadcast()
 		end
+		self:GetOwner():LagCompensation(false)
 		return
 	end
 

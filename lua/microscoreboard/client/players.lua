@@ -104,6 +104,7 @@ function PANEL:Init()
 	self.hovered = self:IsHovered() or self:IsChildHovered()
 
 	self.RankPadding = 0
+
 	self.id = table.insert(ms_player_panels, self)
 end
 
@@ -127,8 +128,6 @@ function PANEL:SetPlayer(ply)
 	self.buttonProfile.DoRightClick = function()
 		MICRO_SCOREBOARD.Menu = CreateMenuPanel(ply)
 	end
-	self.gradientColor = GAMEMODE:GetTeamColor(ply)
-	self.gradientColor.a = 100
 
 	self.buttonProfile.DoClick = function() self.ply:ShowProfile() end
 	self.buttonProfileTooltip = self.buttonProfile:Add("MS_TooltipImage")
@@ -146,19 +145,36 @@ function PANEL:SetPlayer(ply)
 		self.Flag:SetTooltipPanelOverride("MS_Tooltip")
 	end
 
+	self:SetRank(self.ply:GetUserGroup())
 	--Ranks
-	local Rank = RankImage[ply:GetUserGroup()]
-	if not Rank then return end
+end
 
+function PANEL:SetRank(rank)
+	if not RankImage[rank] then
+		if IsValid(self.Rank) then
+			self.Rank:Remove()
+			self.RankPadding = 0
+		end
+		return
+	end
+	rank = RankImage[rank]
+
+	if IsValid(self.Rank) then
+		self.Rank:SetTooltip(rank.Tooltip)
+		self.Rank.Paint = function()
+			svg.Draw(rank["Icon"], 0, 0)
+		end
+		return
+	end
 	self.Rank = self:Add("DButton")
 	self.Rank:SetText("")
 	self.Rank:SetSize(16, 16)
 	self.Rank:DockMargin(2, 2, 0, 2)
 	self.Rank:Dock(LEFT)
-	self.Rank:SetTooltip(Rank.Tooltip)
+	self.Rank:SetTooltip(rank.Tooltip)
 	self.Rank:SetTooltipPanelOverride("MS_Tooltip")
 	self.Rank.Paint = function()
-		svg.Draw(RankImage[ply:GetUserGroup()]["Icon"], 0, 0)
+		svg.Draw(rank["Icon"], 0, 0)
 	end
 
 	self.RankPadding = 14
@@ -232,33 +248,25 @@ function PANEL:OnRemove()
 	table.remove(ms_player_panels, self.id)
 end
 
-hook.Add("OnNW3ReceivedEntityValue", "MICRO_SCOREBOARDboard_flag_update", function(entindex, _, id, var)
-	if id ~= "country" and id ~= "country_code" then return end
+hook.Add("OnNW3ReceivedEntityValue", "micro_scoreboard_flag_update", function(entindex, _, id, var)
+	if id ~= "country" and id ~= "country_code" and id ~= "user_group" then return end
 
-	coroutine.resume(coroutine.create(function()
-		local running = coroutine.running()
+	timer.Simple(0, function()
 		for i = 1, #ms_player_panels do
 			local pnl = ms_player_panels[i]
-
-			if not pnl.GetPlayerID then
-				timer.Create("microscoreboard_flag_coroutine_" .. entindex, 0.2, 0, function()
-					if pnl.GetPlayerID then
-						timer.Remove("microscoreboard_flag_coroutine_" .. entindex)
-						coroutine.resume(running)
-					end
-				end)
-				coroutine.yield()
-			end
-			if pnl:GetPlayerID() ~= entindex then continue end
+			local pnl_tbl = pnl:GetTable()
+			if pnl_tbl.GetPlayerID(pnl) ~= entindex then continue end
 
 			if id == "country_code" then
-				pnl:UpdateFlag(var)
+				pnl_tbl.UpdateFlag(pnl, var)
 			elseif id == "country" then
-				pnl:UpdateCountryName(var)
+				pnl_tbl.UpdateCountryName(pnl, var)
+			elseif id == "user_group" then
+				pnl_tbl.SetRank(pnl, var)
 			end
 			break
 		end
-	end))
+	end)
 end)
 
 

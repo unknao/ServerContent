@@ -33,6 +33,7 @@ hook.Add("PlayerDeath", tag, function(ply)
     local pos = ply:GetPos()
     local ang = ply:GetAngles()
     timer.Simple(3, function()
+        if not IsValid(ply) then return end
         if ply:Alive() then return end
 
         ply:Spawn()
