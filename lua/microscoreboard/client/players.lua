@@ -88,6 +88,7 @@ local function CreateMenuPanel(ply)
 end
 
 local ms_player_panels = {}
+local ms_player_panels_created = 0
 function PANEL:Init()
 	self:SetTall(20)
 	self:SetText("")
@@ -106,7 +107,9 @@ function PANEL:Init()
 
 	self.RankPadding = 0
 
-	self.id = table.insert(ms_player_panels, self)
+	ms_player_panels_created = ms_player_panels_created + 1
+    self.id = self:GetClassName() .. ms_player_panels_created
+    ms_player_panels[self.id] = self
 end
 
 function PANEL:DoClick()
@@ -252,23 +255,23 @@ function PANEL:Paint(w, h)
 end
 
 function PANEL:OnRemove()
-	table.remove(ms_player_panels, self.id)
+	ms_player_panels[self.id] = nil
 end
 
 hook.Add("OnNW3ReceivedEntityValue", "micro_scoreboard_flag_update", function(entindex, _, id, var)
 	if id ~= "country" and id ~= "country_code" and id ~= "user_group" then return end
+	print(id)
 
-	for i = 1, #ms_player_panels do
-		local pnl = ms_player_panels[i]
-		local pnl_tbl = pnl:GetTable()
-		if pnl_tbl.GetPlayerID(pnl) ~= entindex then continue end
+	for _, pnl in pairs(ms_player_panels) do
+		if pnl:GetPlayerID() ~= entindex then continue end
 
 		if id == "country_code" then
-			pnl_tbl.UpdateFlag(pnl, var)
+			pnl:UpdateFlag(var)
 		elseif id == "country" then
-			pnl_tbl.UpdateCountryName(pnl, var)
+			pnl:UpdateCountryName(var)
 		elseif id == "user_group" then
-			pnl_tbl.SetRank(pnl, var)
+			print("hi")
+			pnl:SetRank(var)
 		end
 		break
 	end

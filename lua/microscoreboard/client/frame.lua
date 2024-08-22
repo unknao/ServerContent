@@ -9,6 +9,7 @@ surface.CreateFont("micro_scoreboard_hostname_32",{
 
 local micro_scoreboard_max_players = CreateConVar("micro_scoreboard_max_players", "10", {FCVAR_ARCHIVE}, "Determines how many players can be on the scoreboard without a scroll bar.")
 local ms_frames = {}
+local ms_frames_created = 0
 
 function PANEL:Init()
     self:SetSize(700, 0)
@@ -38,7 +39,11 @@ function PANEL:Init()
         self:AddPlayerPanel(ply)
     end
     self:UpdateSize(player.GetCount())
-    self.id = table.insert(ms_frames, self)
+
+    ms_frames_created = ms_frames_created + 1
+    self.id = self:GetClassName() .. ms_frames_created
+    ms_frames[self.id] = self
+    --self.id = table.insert(ms_frames, self)
 end
 
 function PANEL:UpdateSize(Count)
@@ -101,7 +106,7 @@ function PANEL:Close()
 end
 
 function PANEL:OnRemove()
-    table.remove(ms_frames, self.id)
+    ms_frames[self.id] = nil
 end
 
 vgui.Register("MS_ScoreboardFrame", PANEL, "DFrame")
@@ -110,13 +115,11 @@ hook.Add("OnEntityCreated", "MICRO_SCOREBOARDboard_PlayerJoin", function(ply)
     if not ply:IsPlayer() then return end
 
     timer.Simple(0, function()
-        for i = 1, #ms_frames do
-            local pnl = ms_frames[i]
-            local pnl_tbl = pnl:GetTable()
-            if not pnl_tbl.GetScrollPanel(pnl) then continue end
+        for _, pnl in pairs(ms_frames) do
+            if not pnl:GetScrollPanel() then continue end
 
-            pnl_tbl.AddPlayerPanel(pnl, ply)
-            pnl_tbl.UpdateSize(pnl, player.GetCount())
+            pnl:AddPlayerPanel(ply)
+            pnl:UpdateSize(player.GetCount())
         end
     end)
 end)
