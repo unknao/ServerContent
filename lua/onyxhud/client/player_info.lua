@@ -1,6 +1,8 @@
 local tag = "onyxhud_player_info"
+local onyxhud_player_info_hide = CreateConVar(tag .. "_hide", 0, {FCVAR_ARCHIVE}, "Hide onyxhuds custom player info")
+
 hook.Add("HUDDrawTargetID", tag, function()
-    return false
+    return onyxhud_player_info_hide:GetBool()
 end)
 
 surface.CreateFont(tag, {
@@ -13,6 +15,7 @@ surface.CreateFont(tag, {
 local onyxhud_player_info_shown = {}
 
 hook.Add("PostDrawTranslucentRenderables", tag, function(_, skybox)
+    if onyxhud_player_info_hide:GetBool() then return end
     if skybox then return end
 
     local aim = LocalPlayer():GetEyeTrace()
@@ -24,10 +27,10 @@ hook.Add("PostDrawTranslucentRenderables", tag, function(_, skybox)
         ang:RotateAroundAxis( ang:Forward(), 90 )
 
         onyxhud_player_info_shown[ply] = {
-            TTL = CurTime() + 1,
+            ttl = CurTime() + 1,
             hitPos = ply:WorldToLocal(aim.HitPos),
             eyeAngles = ang,
-            color = GAMEMODE:GetTeamColor(ply)
+            color = ONYXHUD.Colors[ply:Team()]
         }
     end
     if table.IsEmpty(onyxhud_player_info_shown) then return end
@@ -38,22 +41,24 @@ hook.Add("PostDrawTranslucentRenderables", tag, function(_, skybox)
             onyxhud_player_info_shown[ply] = nil
             continue
         end
-        if tbl.TTL <= CurTime() then
+        if tbl.ttl <= CurTime() then
             onyxhud_player_info_shown[ply] = nil
             continue
         end
         if ply:GetPos():DistToSqr(EyePos()) >= 160000 then continue end
 
-        tbl.color.a = 255 * math.ease.OutCubic(tbl.TTL - CurTime())
         local scale = ply:GetModelScale()
+
+        local alpha_composite = math.min(1 - math.ease.InExpo(dist / (160000 * scale)), math.ease.OutCubic(tbl.ttl - CurTime()))
+        if alpha_composite <= 0 then continue end
+
+        surface.SetAlphaMultiplier(alpha_composite)
         cam.Start3D2D(ply:LocalToWorld(tbl.hitPos) - EyeVector() * 10, tbl.eyeAngles, scale * 0.02)
-            surface.SetFont(tag)
-            surface.SetTextColor(tbl.color.r * 0.25, tbl.color.g * 0.25, tbl.color.b * 0.25, tbl.color.a)
-            surface.SetTextPos(8, 8)
-            surface.DrawText("Health: " .. ply:Health())
-            surface.SetTextColor(tbl.color)
-            surface.SetTextPos(0, 0)
-            surface.DrawText("Health: " .. ply:Health())
+            ONYXHUD.DrawTextShadowed("Health: " .. ply:Health(), tag, 0, 0, tbl.color[1], tbl.color[2], 8, TEXT_ALIGN_TOP, TEXT_ALIGN_RIGHT)
+            if ply:Armor() > 0 then
+            ONYXHUD.DrawTextShadowed("Armor: " .. ply:Armor(), tag, 0, 210, tbl.color[1], tbl.color[2], 8, TEXT_ALIGN_TOP, TEXT_ALIGN_RIGHT)
+            end
         cam.End3D2D()
+        surface.SetAlphaMultiplier(1)
     end
 end)
