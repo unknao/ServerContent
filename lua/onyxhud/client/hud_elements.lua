@@ -34,7 +34,7 @@ local function DrawElement(name, value, maxvalue, x, y)
 	local bar_height = (height - 10) * 0.1
 	local bar_width = (width - 10)
 	local value_scale = math.min(value / maxvalue, 1)
-	draw.RoundedBox(5, x + 5, y - 5 - bar_height, bar_width * value_scale, bar_height, color_element)
+	draw.RoundedBox(0, x + 5, y - 5 - bar_height, bar_width * value_scale, bar_height, color_element)
 	if value > 999 then value = "999+" end
 
 	local text_width = 10
@@ -47,7 +47,7 @@ local function DrawAmmoElement(name, value, maxvalue, value2, x, y)
 	local bar_height = (height - 10) * 0.1
 	local bar_width = (width - 10)
 	local value_scale = math.min(value / maxvalue, 1)
-	draw.RoundedBox(5, x + 5, y - 5 - bar_height, bar_width * value_scale, bar_height, color_element)
+	draw.RoundedBox(0, x + 5, y - 5 - bar_height, bar_width * value_scale, bar_height, color_element)
 
 	local text_width = 10
 	if value > 100 then name = name[1] .. ".." end
@@ -104,14 +104,16 @@ hook.Add("HUDPaint", "testhud", function()
 
 	local wep = ply:GetActiveWeapon()
 	if not IsValid(wep) then return end
+	local ammo_padding = ScrH() - 20
 	local ammo_reserve = ply:GetAmmoCount(wep:GetPrimaryAmmoType())
 	if wep:GetMaxClip1() > 0  or ammo_reserve > 0 then
-		DrawAmmoElement("AMMO", wep:Clip1(), wep:GetMaxClip1(), ammo_reserve, ScrW() - 205, ScrH() - 20)
+		DrawAmmoElement("AMMO", wep:Clip1(), wep:GetMaxClip1(), ammo_reserve, ScrW() - 205, ammo_padding)
+		ammo_padding = ammo_padding - height - 10
 	end
 
 	local ammo2_reserve = ply:GetAmmoCount(wep:GetSecondaryAmmoType())
 	if wep:GetMaxClip2() > 0  or ammo2_reserve > 0 then
-		DrawAmmoElement("ALT", wep:Clip2(), wep:GetMaxClip2(), ammo2_reserve, ScrW() - 205, ScrH() - 90)
+		DrawAmmoElement("ALT", wep:Clip2(), wep:GetMaxClip2(), ammo2_reserve, ScrW() - 205, ammo_padding)
 	end
 end)
 
