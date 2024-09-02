@@ -30,12 +30,17 @@ local function GetNiceName(ent)
 end
 
 hook.Add("PlayerDeath", "onyxhud_killfeed", function(ply, inf, atk)
-    if not IsValid(inf) then return end
+    if not IsValid(inf) then
+        return
+    end
     if not IsValid(atk) then return end
+    if inf == atk then
+        if inf:IsPlayer() then inf = atk:GetActiveWeapon()
+        elseif IsValid(atk:GetOwner()) then atk = atk:GetOwner() end
+    end
     if not atk:IsPlayer() then return end
     if ply == atk then return end
 
-    if inf == atk and inf:IsPlayer() then inf = atk:GetActiveWeapon() end
     net.Start("onyxhud_killfeed")
     net.WriteEntity(atk)
     net.WriteString(GetNiceName(inf))
