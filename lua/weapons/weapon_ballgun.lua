@@ -36,50 +36,39 @@ local function shootfx(self)
 	self:ShootEffects(self)
 	self.Owner:SetAnimation(PLAYER_ATTACK1)
 	self:SendWeaponAnim(ACT_VM_PRIMARYATTACK)
-	self:SetNextPrimaryFire(CurTime()+.75)
+	self:SetNextPrimaryFire(CurTime(), 0.02)
 	self:SetNextSecondaryFire(CurTime()+.75)
 end
-local function spawn(self,spd)
-	local bl=ents.Create("point_combine_ball_launcher")
-	local pos = self.Owner:GetShootPos()+self.Owner:EyeAngles():Forward()
-	bl:SetPos(pos)
-	bl:SetOwner(self.Owner)
-	bl:Spawn()
+local function spawn(self, spd, spread)
+	local bl = ents.Create("prop_combine_ball")
+	bl:SetOwner(self:GetOwner())
+	bl:SetPos(self:GetOwner():GetShootPos() + self:GetOwner():GetAimVector()*50)
+
+	bl:SetSaveValue("m_flRadius",10)
 	bl:Activate()
-	bl:SetKeyValue("angles",tostring(self.Owner:EyeAngles()))
-	bl:SetKeyValue("ballcount","1")
-	bl:SetKeyValue("maxspeed",spd)
-	bl:SetKeyValue("minspeed",spd)
-	bl:SetKeyValue("spawnflags","2")
-	bl:SetKeyValue("launchconenoise","0")
-	bl:Fire("launchBall")
-	bl:Fire("kill")
-	timer.Simple(0, function()
-		if not IsValid(self) then return end
-		if not IsValid(self.Owner) then return end
+	bl:Spawn()
+	bl:SetSaveValue("m_nState", 3)
+	local phys = bl:GetPhysicsObject()
+	if not IsValid(phys) then
+		bl:Remove()
+		return
+	end
 
-		for k,v in pairs(ents.FindInSphere(pos, 20)) do
-			if not IsValid(v) then continue end
-			if not v:GetClass() == "prop_combine_ball" then continue end
-			if IsValid(v:GetOwner()) then continue end
-
-			v:SetOwner(self.Owner)
-			v:GetPhysicsObject():AddGameFlag( FVPHYSICS_WAS_THROWN )
-		end
-	end)
+	phys:AddGameFlag( FVPHYSICS_WAS_THROWN )
+	phys:SetVelocity((self:GetOwner():GetAimVector() + VectorRand(-spread, spread)):GetNormalized() * spd )
 end
 
 function SWEP:PrimaryAttack()
 	shootfx(self)
 	if SERVER then
-		spawn(self,"1500")
+		spawn(self, 300, 0.05)
 	end
 end
 
 function SWEP:SecondaryAttack()
 	shootfx(self)
 	if SERVER then
-		spawn(self,"300")
+		spawn(self, 3000, 0)
 	end
 end
 
