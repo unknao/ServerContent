@@ -16,7 +16,6 @@ end)
 hook.Add("OnDamagedByExplosion", tag, function(ply, dmg)
 	ply:SetDSP(34)
 	timer.Create("ExplosionMuffle_" .. tostring(ply:EntIndex()), dmg:GetDamage() * 0.01, 1, function()
-		print("s")
 		ply:SetDSP(ply:Alive() and 1 or 26)
 	end)
 	return true
