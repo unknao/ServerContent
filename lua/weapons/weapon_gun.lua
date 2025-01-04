@@ -24,20 +24,21 @@ SWEP.Secondary.DefaultClip = -1
 SWEP.Secondary.Automatic = false
 SWEP.Secondary.Ammo = "none"
 SWEP.Category = "Default"
+SWEP.IconOverride = "entities/weapon_pistol.png"
 
 SWEP.DrawAmmo = false
 SWEP.AdminOnly = false
 
-local weaponSelectionColor = Color( 255, 220, 0, 255 )
-function SWEP:DrawWeaponSelection( x, y, w, t, a )
-    weaponSelectionColor.a = a
-    draw.SimpleText( "d", "pistol_icon", x + w / 2, y, weaponSelectionColor, TEXT_ALIGN_CENTER)
+local weaponSelectionColor = Color(255, 220, 0, 255)
+function SWEP:DrawWeaponSelection(x, y, w, t, a)
+	weaponSelectionColor.a = a
+	draw.SimpleText("d", "pistol_icon", x + w / 2, y, weaponSelectionColor, TEXT_ALIGN_CENTER)
 
-    self:PrintWeaponInfo(x + w + 10, y + t * 1.1, alpha)
+	self:PrintWeaponInfo(x + w + 10, y + t * 1.1, alpha)
 end
 
 function SWEP:Initialize()
-	self:SetHoldType( "pistol" )
+	self:SetHoldType("pistol")
 end
 
 function SWEP:PrimaryAttack()
@@ -46,14 +47,14 @@ function SWEP:PrimaryAttack()
 	self:EmitSound("Weapon_Pistol.Single")
 	self:ShootEffects()
 
-    local owner = self:GetOwner()
-    self:FireBullets({
-        Damage = 10000,
-        Src = owner:GetShootPos(),
-        Dir = owner:GetForward(),
-        TracerName = "Tracer",
-        Force = 10
-    })
+	local owner = self:GetOwner()
+	self:FireBullets({
+		Damage = 10000,
+		Src = owner:GetShootPos(),
+		Dir = owner:GetForward(),
+		TracerName = "Tracer",
+		Force = 10
+	})
 end
 
 function SWEP:SecondaryAttack() end
@@ -62,10 +63,10 @@ function SWEP:Reload() end
 function SWEP:CanBePickedUpByNPCs() return false end
 if SERVER then return end
 
-surface.CreateFont("pistol_icon",{
-    font = "HalfLife2",
-    size = 150,
-    antialias = true,
-    outline = false,
-    weight = 1
+surface.CreateFont("pistol_icon", {
+	font = "HalfLife2",
+	size = 150,
+	antialias = true,
+	outline = false,
+	weight = 1
 })
