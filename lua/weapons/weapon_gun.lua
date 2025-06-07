@@ -49,6 +49,8 @@ function SWEP:PrimaryAttack()
 
 	local owner = self:GetOwner()
 	self:FireBullets({
+		Attacker = owner,
+		Inflictor = self,
 		Damage = 10000,
 		Src = owner:GetShootPos(),
 		Dir = owner:GetForward(),
