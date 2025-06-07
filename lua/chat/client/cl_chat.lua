@@ -7,12 +7,10 @@ hook.Add("ChatText","hide_joinleave",function( index, name, text, typ )
 end)
 
 net.Receive("chatprint", function()
-
 	chat.AddText(unpack(net.ReadTable()))
 	if net.ReadBool() then
 		chat.PlaySound()
 	end
-
 end)
 
 
