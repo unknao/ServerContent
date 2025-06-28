@@ -1,5 +1,6 @@
 local tag = "onyxhud_nametags"
-local nametags_hide = CreateConVar("onyxhud_nametags_hide", 0, {FCVAR_ARCHIVE}, "Hide custom nametags.")
+local onyxhud_nametags_enable = CreateConVar("onyxhud_nametags_enable", 1, {FCVAR_ARCHIVE}, "Controls whether the custom nametags draw or not.")
+local onyxhud_playerrings_enable = CreateConVar("onyxhud_playerrings_enable", 1, {FCVAR_ARCHIVE}, "Controls whether player rings at players feet draw or not.")
 
 --Load svg library
 svg.Generate("nametags_superadmin_200", 200, 200, [[<!-- icon666.com - MILLIONS vector ICONS FREE --><svg id="Capa_1" enable-background="new 0 0 509.385 509.385" viewBox="0 0 509.385 509.385" xmlns="http://www.w3.org/2000/svg"><g><path d="m443.692 189c0-20.973-19.938-35.404-22.406-44.636-2.682-10.04 7.477-31.958-2.9-49.894-10.373-17.929-34.75-20.381-41.768-27.396-7.01-7.013-9.471-31.398-27.396-41.769-17.967-10.395-39.834-.207-49.894-2.9-9.241-2.47-23.652-22.405-44.636-22.405-20.973 0-35.404 19.938-44.636 22.406-10.039 2.682-31.961-7.477-49.894 2.9-17.929 10.373-20.381 34.75-27.396 41.768-7.013 7.01-31.397 9.471-41.769 27.396-10.363 17.913-.225 39.878-2.9 49.894-2.471 9.241-22.406 23.652-22.406 44.636 0 20.973 19.938 35.404 22.406 44.636 2.682 10.04-7.477 31.958 2.9 49.894 10.373 17.929 34.75 20.381 41.768 27.396 5.007 5.009 8.386 21.193 16.926 32.372v166.088l105-43.167 105 43.167v-166.09c8.445-11.054 11.922-27.363 16.925-32.369 7.013-7.01 31.398-9.471 41.769-27.397 10.363-17.913.225-39.878 2.9-49.894 2.472-9.241 22.407-23.653 22.407-44.636zm-264 168.468c11.422.036 24.352-3.482 30.364-1.874 6.501 1.738 16.912 13.392 29.636 19.036v65.319l-60 24.666zm90 82.481v-65.319c12.489-5.54 23.27-17.334 29.636-19.036 6.02-1.612 18.888 1.91 30.364 1.874v107.147zm135.61-236.764c-4.981 6.486-10.628 13.838-12.998 22.705-2.446 9.151-1.232 18.542-.162 26.827.725 5.612 1.718 13.298.277 15.789-1.518 2.623-8.469 5.504-14.054 7.818-7.662 3.175-16.347 6.773-22.961 13.389-6.615 6.615-10.214 15.299-13.389 22.961-2.314 5.585-5.195 12.535-7.817 14.053-2.489 1.441-10.176.447-15.789-.277-8.284-1.07-17.677-2.284-26.827.162-8.867 2.37-16.219 8.017-22.705 12.998-4.867 3.738-10.924 8.391-14.185 8.391s-9.317-4.652-14.185-8.391c-11.802-9.064-19.822-14.426-34.55-14.426-11.293 0-26.752 3.871-30.771 1.543-2.623-1.518-5.504-8.469-7.818-14.054-3.175-7.662-6.773-16.347-13.389-22.961-6.615-6.615-15.299-10.214-22.961-13.389-5.585-2.314-12.535-5.195-14.053-7.817-1.44-2.491-.447-10.177.277-15.789 1.07-8.285 2.284-17.676-.162-26.827-2.37-8.867-8.017-16.219-12.998-22.705-3.738-4.867-8.391-10.924-8.391-14.185s4.652-9.317 8.391-14.185c4.981-6.486 10.628-13.838 12.998-22.705 2.446-9.151 1.232-18.542.162-26.827-.725-5.612-1.718-13.298-.277-15.789 1.518-2.623 8.469-5.504 14.054-7.818 7.662-3.175 16.347-6.773 22.961-13.389 6.615-6.615 10.214-15.299 13.389-22.961 2.314-5.585 5.195-12.535 7.817-14.053 2.49-1.44 10.176-.447 15.789.277 8.283 1.069 17.675 2.282 26.827-.162 8.867-2.37 16.219-8.017 22.705-12.998 4.868-3.738 10.925-8.39 14.185-8.39s9.317 4.652 14.185 8.391c6.486 4.982 13.838 10.628 22.705 12.998 9.152 2.446 18.542 1.232 26.827.162 5.613-.725 13.3-1.719 15.789-.277 2.623 1.518 5.504 8.469 7.818 14.054 3.175 7.662 6.773 16.347 13.389 22.961 6.615 6.615 15.299 10.214 22.961 13.389 5.585 2.314 12.535 5.195 14.053 7.817 1.44 2.491.447 10.177-.277 15.789-1.07 8.285-2.284 17.676.162 26.827 2.37 8.867 8.017 16.219 12.998 22.705 3.738 4.867 8.391 10.924 8.391 14.185s-4.653 9.316-8.391 14.184z" fill="#000000" style="fill: rgb(255, 255, 255);"></path><path d="m254.692 84c-57.897 0-105 47.102-105 105s47.103 105 105 105 105-47.102 105-105-47.102-105-105-105zm0 180c-41.355 0-75-33.645-75-75s33.645-75 75-75 75 33.645 75 75-33.644 75-75 75z" fill="#000000" style="fill: rgb(255, 255, 255);"></path></g></svg>]])
@@ -9,9 +10,17 @@ local SVGS = {
 	admin = "nametags_admin_200"
 }
 
+local ring_material = Material("particle/particle_ring_wave_additive")
 hook.Add("PostPlayerDraw", tag, function(ply)
-	if nametags_hide:GetBool() then return end
 	if ply == LocalPlayer() and not ply:ShouldDrawLocalPlayer() then return end
+	if ply:IsDormant() then return end
+
+	local colors = ONYXHUD.Colors[ply:Team()]
+	if onyxhud_playerrings_enable:GetBool() then --Player rings
+		render.SetMaterial(ring_material)
+		render.DrawQuadEasy(ply:GetPos() + vector_up, vector_up, 32, 32, colors[1], 0)
+	end
+	if not onyxhud_nametags_enable:GetBool() then return end --Nametags
 
 	local ply_or_ragdoll = IsValid(ply:GetRagdollEntity()) and ply:GetRagdollEntity() or ply
 	local head_attach = ply_or_ragdoll:LookupBone("ValveBiped.Bip01_Head1")
@@ -41,7 +50,7 @@ hook.Add("PostPlayerDraw", tag, function(ply)
 	local alpha_composite = math.min(distalpha, diralpha)
 	if alpha_composite <= 0 then return end
 	local text = ply:Name()
-	local colors = ONYXHUD.Colors[ply:Team()]
+
 
 	surface.SetAlphaMultiplier(alpha_composite)
 	cam.Start3D2D(pos,ang, 0.03 * scale)
