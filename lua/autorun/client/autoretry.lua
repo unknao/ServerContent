@@ -14,7 +14,7 @@ timer.Create(tag, 3, 0, function()
 
         timer.Remove(tag)
         print("Server is restarting, rejoining shortly.")
-        timer.Simple(10, function()
+        timer.Simple(2, function()
             RunConsoleCommand("retry")
         end)
     end)
