@@ -30,21 +30,23 @@ hook.Add("PostDrawTranslucentRenderables", tag, function(_, skybox)
 	last_aimpos = aimpos
 	aimpos = aim.HitPos
 
-	if IsValid(plr) and plr:IsPlayer() and dist <= 400 then
-		local ang = EyeAngles()
-		ang:RotateAroundAxis( ang:Up(), -90 )
-		ang:RotateAroundAxis( ang:Forward(), 90 )
+	if dist <= 400 then
+		if IsValid(plr) and plr:IsPlayer() then
+			local ang = EyeAngles()
+			ang:RotateAroundAxis( ang:Up(), -90 )
+			ang:RotateAroundAxis( ang:Forward(), 90 )
 
-		onyxhud_player_info_shown[plr] = {
-			ttl = CurTime() + 1,
-			hitPos = plr:WorldToLocal(aimpos),
-			eyeAngles = ang,
-			color = ONYXHUD.Colors[plr:Team()]
-		}
-	end
-	if plr ~= last_plr and IsValid(last_plr) and onyxhud_player_info_shown[last_plr] then
-		print("hi")
-		onyxhud_player_info_shown[last_plr].hitPos = last_plr:WorldToLocal(last_aimpos)
+			onyxhud_player_info_shown[plr] = {
+				ttl = CurTime() + 1,
+				hitPos = plr:WorldToLocal(aimpos),
+				eyeAngles = ang,
+				color = ONYXHUD.Colors[plr:Team()]
+			}
+		end
+		if plr ~= last_plr and IsValid(last_plr) and onyxhud_player_info_shown[last_plr] then
+			print("hi")
+			onyxhud_player_info_shown[last_plr].hitPos = last_plr:WorldToLocal(last_aimpos)
+		end
 	end
 
 	if table.IsEmpty(onyxhud_player_info_shown) then return end
