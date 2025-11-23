@@ -20,12 +20,11 @@ local svg_debugprint = CreateConVar("svg_debugprint", 0, FCVAR_ARCHIVE, "Prints 
 svg = svg or {
 	Cache = {},
 	Coroutines = {},
-	Proceed = false
 }
-
+local Proceed = false
 hook.Add("OnGamemodeLoaded", "SVG_CanWork", function() --Workaround for not being able to make derma panels right away
 	timer.Simple(0, function()
-		svg.Proceed = true
+		Proceed = true
 		for _, co in ipairs(svg.Coroutines) do
 			coroutine.resume(co)
 		end
@@ -63,7 +62,6 @@ end
 function svg.GetMaterial(ID)
 	local svgdata = svg.Cache[ID]
 	if not istable(svgdata) then
-		error(string.format("attempted to use an unregistered svg material %q", ID))
 		return
 	end
 
@@ -87,15 +85,17 @@ end
 local function debugprint(ID, str)
 	if not svg_debugprint:GetBool() then return end
 
-	print(string.format("[SVGLIB]: %q %s", ID, str))
+	print(string.format("[SVG_DEBUG]: %q %s", ID, str))
 end
 
 function svg.Generate(...)
-	coroutine.resume(coroutine.create(function(ID, w, h, strSVG)
+	coroutine.resume(coroutine.create(function(ID, w, h, strSVG, callback)
 		debugprint(ID, "Material creation started.")
 		local coRunning = coroutine.running()
 
-		assert(isstring( strSVG ), "Invalid SVG")
+		if not isstring(strSVG) then
+			error("expected string, got " .. type(strSVG))
+		end
 		local open = string.find( strSVG, "<svg%s(.-)>" )
 		local _, close = string.find( strSVG, "</svg>%s*$" )
 		assert(( open and close ) ~= nil, "Invalid SVG")
@@ -104,13 +104,14 @@ function svg.Generate(...)
 		strSVG = string.gsub( strSVG, [[width="(.-)"]], string.format([[width="%i"]], w ))
 		strSVG = string.gsub( strSVG, [[height="(.-)"]], string.format([[height="%i"]], h))
 
-		if not svg.Proceed then --Wait until derma panels can be made if necessary
+		if not Proceed then --Wait until derma panels can be made if necessary
 			debugprint(ID, "Derma library not loaded, waiting for it to load...")
 			table.insert(svg.Coroutines, coRunning)
 			coroutine.yield()
 			debugprint(ID, "Client loading complete!")
 		end
 
+		print(5)
 		local HTML_Panel = vgui.Create("DHTML")
 		HTML_Panel:SetVisible(false)
 		HTML_Panel:SetHTML(SVGTemplate:format(strSVG))
@@ -153,22 +154,41 @@ function svg.Generate(...)
 		HTML_Panel:Remove()
 		debugprint(ID, "HTML panel removed.")
 		svg.Cache[ID] = {mat = SVG_Mat, w = SVG_Mat:Width(), h = SVG_Mat:Height()}
+		hook.Run("SVGGenerated", ID, SVG_Mat, w, h)
 		debugprint(ID, "Operation Success!")
+
+		if not isfunction(callback) then return end
+
+		callback(SVG_Mat)
+		debugprint(ID, "Callback ran.")
 	end), ...)
 end
 
-function svg.Load(ID, w, h, path)
-	local strSVG = file.Read( path, "DATA" )
-	assert( strSVG ~= nil, "invalid path" )
+function svg.Load(...)
+	local tbl = {...}
+	local filedir = tbl[1]
+	local ID = tbl[2]
+	local w = tbl[3]
+	local h = tbl[4]
+	local callback = tbl[5]
 
-	svg.Generate(ID, w, h, strSVG)
+	local strSVG = file.Read(filedir, "DATA")
+	assert(strSVG ~= nil, "invalid path")
+
+	svg.Generate(ID, w, h, strSVG, callback)
 end
 
-function svg.LoadURL(ID, w, h, url)
-	assert(string.GetExtensionFromFilename(url) == "svg", "Invalid SVG")
+function svg.LoadURL(...)
+	local tbl = {...}
+	local url = tbl[1]
+	local ID = tbl[2]
+	local w = tbl[3]
+	local h = tbl[4]
+	local callback = tbl[5]
 
+	assert(string.GetExtensionFromFilename(url) == "svg", "Invalid SVG")
 	http.Fetch(url, function(strSVG)
-		svg.Generate(ID, w, h, strSVG)
+		svg.Generate(ID, w, h, strSVG, callback)
 	end,
 	function(err)
 		error(err)
