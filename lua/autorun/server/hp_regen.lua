@@ -1,25 +1,19 @@
---Glacial hp regen
-gameevent.Listen("player_hurt")
-hook.Add("player_hurt", "glacial_hp_regen", function(data)
-    local health = data.health
-    if health >= 100 or health <= 0 then
-        return
-    end
+hook.Add("PostEntityTakeDamage", "Glacial_HP_Regen", function(ply)
+    if not IsValid(ply) then return end
+    if not ply:IsPlayer() then return end
 
-    local timer_id = data.userid .. "_hp_regen"
+    local timer_id = ply:UserID() .. "_hp_regen"
     if not timer.Exists(timer_id) then
-        local ply = Player(data.userid)
-
         timer.Create(timer_id, 60, 0, function()
             local hp = ply:Health()
-            if hp >= 100 or health <= 0 then
+            if hp >= 100 or hp <= 0 then
                 timer.Stop(timer_id)
                 return
             end
 
             hp = hp + 10
-            ply:SetHealth(math.min(health, 100))
-            if health >= 100 then
+            ply:SetHealth(math.min(hp, 100))
+            if hp >= 100 then
                 timer.Stop(timer_id)
             end
         end)
