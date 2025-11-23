@@ -252,7 +252,6 @@ hook.Add("OnNW3ReceivedEntityValue", "micro_scoreboard_flag_update", function(en
 		elseif id == "country" then
 			pnl:UpdateCountryName(var)
 		elseif id == "user_group" then
-			print("hi")
 			pnl:SetRank(var)
 		end
 		break
