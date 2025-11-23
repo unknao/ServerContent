@@ -21,6 +21,7 @@ function PANEL:Init()
     self:ShowCloseButton(true)
     self:SetDraggable(false)
     self:SetSizable(false)
+    self:ParentToHUD()
     self.isOpen = false
     for i, v in ipairs(TrackedValues) do
         local infopanel = self:Add("MS_InfoPanel")

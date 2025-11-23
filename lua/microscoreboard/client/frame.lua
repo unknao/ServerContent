@@ -19,6 +19,7 @@ function PANEL:Init()
     self:ShowCloseButton(false)
     self:SetDraggable(false)
     self:SetSizable(false)
+    self:ParentToHUD()
     self.isOpen = false
 
     self.scrollPanel = self:Add("DScrollPanel")
