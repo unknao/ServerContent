@@ -111,7 +111,6 @@ function svg.Generate(...)
 			debugprint(ID, "Client loading complete!")
 		end
 
-		print(5)
 		local HTML_Panel = vgui.Create("DHTML")
 		HTML_Panel:SetVisible(false)
 		HTML_Panel:SetHTML(SVGTemplate:format(strSVG))
