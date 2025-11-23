@@ -60,9 +60,39 @@ function svg.Remove(ID)
 	svg.Cache[ID] = nil
 end
 
+function svg.GetMaterial(ID)
+	local svgdata = svg.Cache[ID]
+	if not istable(svgdata) then
+		error(string.format("attempted to use an unregistered svg material %q", ID))
+		return
+	end
+
+	return svgdata.mat
+end
+
+function svg.GetTable(ID)
+	local svgdata = svg.Cache[ID]
+	if not istable(svgdata) then
+		error(string.format("attempted to use an unregistered svg material %q", ID))
+		return
+	end
+
+	return svgdata
+end
+
+function svg.IsValid(ID)
+	return istable(svg.Cache[ID])
+end
+
+local function debugprint(ID, str)
+	if not svg_debugprint:GetBool() then return end
+
+	print(string.format("[SVGLIB]: %q %s", ID, str))
+end
+
 function svg.Generate(...)
 	coroutine.resume(coroutine.create(function(ID, w, h, strSVG)
-		if svg_debugprint:GetBool() then print("[SVG] '" .. ID .. "' Material creation started.") end
+		debugprint(ID, "Material creation started.")
 		local coRunning = coroutine.running()
 
 		assert(isstring( strSVG ), "Invalid SVG")
@@ -75,10 +105,10 @@ function svg.Generate(...)
 		strSVG = string.gsub( strSVG, [[height="(.-)"]], string.format([[height="%i"]], h))
 
 		if not svg.Proceed then --Wait until derma panels can be made if necessary
-			if svg_debugprint:GetBool() then print("[SVG] '" .. ID .. "' Waiting for client to load.") end
+			debugprint(ID, "Derma library not loaded, waiting for it to load...")
 			table.insert(svg.Coroutines, coRunning)
 			coroutine.yield()
-			if svg_debugprint:GetBool() then print("[SVG] '" .. ID .. "' Client loading complete.") end
+			debugprint(ID, "Client loading complete!")
 		end
 
 		local HTML_Panel = vgui.Create("DHTML")
@@ -86,28 +116,44 @@ function svg.Generate(...)
 		HTML_Panel:SetHTML(SVGTemplate:format(strSVG))
 		HTML_Panel:SetSize(w, h)
 		HTML_Panel:UpdateHTMLTexture()
-		if svg_debugprint:GetBool() then print("[SVG] '" .. ID .. "' HTML panel created.") end
+		debugprint(ID, "HTML panel created.")
 		HTML_Panel.OnFinishLoadingDocument = function(self)
 			self:UpdateHTMLTexture()
 			timer.Create("SVG_" .. ID, 0, 0, function()
 				if not self:GetHTMLMaterial() then return end
 				if self:GetHTMLMaterial():IsError() then return end --Code might randomly fail here because GetHTMLMaterial doesn't always return something
+
 				coroutine.resume(coRunning, self:GetHTMLMaterial():GetName())
 				timer.Remove("SVG_" .. ID)
-				if svg_debugprint:GetBool() then print("[SVG] '" .. ID .. "' Material acquired, svg creation success.") end
-				self:Remove()
 			end)
 		end
 
-		local SVG_Mat = CreateMaterial(string.format("SVG_%s_%ix%i", ID, w, h), "UnlitGeneric",
-		{
-			["$basetexture"] = coroutine.yield(),
-			["$translucent"] = 1,
-			["$vertexalpha"] = 1,
-			["$vertexcolor"] = 1
-		})
+		local SVG_Mat
+		local SVG_Texture = coroutine.yield()
+		debugprint(ID, "Texture acquired.")
+		if svg.IsValid(ID) then
+			SVG_Mat = svg.GetMaterial(ID)
+			SVG_Mat:SetTexture("$basetexture", SVG_Texture)
+			SVG_Mat:SetInt("$translucent", 1)
+			SVG_Mat:SetInt("$vertexalpha", 1)
+			SVG_Mat:SetInt("$vertexcolor", 1)
+			debugprint(ID, "Previous SVG Material overriden.")
+		else
+			local SVG_Name = string.format("%s_%i_%i", ID, w, h)
+			SVG_Mat = CreateMaterial(SVG_Name, "UnlitGeneric",
+			{
+				["$basetexture"] = SVG_Texture,
+				["$translucent"] = 1,
+				["$vertexalpha"] = 1,
+				["$vertexcolor"] = 1
+			})
+			debugprint(ID, "SVG Material created.")
+		end
 
+		HTML_Panel:Remove()
+		debugprint(ID, "HTML panel removed.")
 		svg.Cache[ID] = {mat = SVG_Mat, w = SVG_Mat:Width(), h = SVG_Mat:Height()}
+		debugprint(ID, "Operation Success!")
 	end), ...)
 end
 
@@ -131,7 +177,10 @@ end
 
 function svg.Draw(ID, x, y, color)
 	local svgdata = svg.Cache[ID]
-	if not istable(svgdata) then return end
+	if not istable(svgdata) then
+		error(string.format("attempted to use an unregistered svg material %q", ID))
+		return
+	end
 
 	surface.SetDrawColor(color or color_white)
 
